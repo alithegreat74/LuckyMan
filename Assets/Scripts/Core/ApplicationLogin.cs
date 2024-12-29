@@ -1,11 +1,11 @@
 using UnityEngine;
 using Sfs2X.Core;
 using Sfs2X.Requests;
-using Sfs2X;
 using Sfs2X.Entities;
 
 namespace Core
 {
+    //TODO: Need to re-design the relation between the connector and login
     public class ApplicationLogin : MonoBehaviour
     {
         //TODO: Handle zone info in a scriptable object
