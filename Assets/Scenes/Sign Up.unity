@@ -580,7 +580,7 @@ GameObject:
   - component: {fileID: 411603095}
   - component: {fileID: 411603097}
   m_Layer: 5
-  m_Name: Sign Up biutton
+  m_Name: Sign Up Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
