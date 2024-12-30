@@ -1,9 +1,11 @@
 {
-    "name": "Core",
+    "name": "Application",
     "rootNamespace": "",
     "references": [
-        "GUID:bcd0c64b6404425429d7787e545e6dbe",
-        "GUID:81d81993cabb90845be9984519d08d79"
+        "GUID:81d81993cabb90845be9984519d08d79",
+        "GUID:2bafac87e7f4b9b418d9448d219b01ab",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:bcd0c64b6404425429d7787e545e6dbe"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
