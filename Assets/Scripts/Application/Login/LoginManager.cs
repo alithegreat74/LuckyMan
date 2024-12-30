@@ -21,7 +21,7 @@ namespace Application
                 break;
             }
         }
-        public void SendRequest(LoginInfo info)
+        public void SendRequest(UserInfo info)
         {
             NetworkCommand.SendRequest(new LoginRequest(info.Username, info.Password, _zoneName));
         }

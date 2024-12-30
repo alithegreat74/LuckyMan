@@ -18,7 +18,7 @@ namespace Application
 
         private void LoginButtonClicked()
         {
-            LoginInfo loginInfo = new LoginInfo() { Username = _usernameInput.text, Password = _paswordInput.text };
+            UserInfo loginInfo = new UserInfo() { Username = _usernameInput.text, Password = _paswordInput.text };
             GetComponent<LoginManager>().SendRequest(loginInfo);
         }
 
