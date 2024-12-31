@@ -1,27 +1,29 @@
 using Model;
 using Network;
 using Sfs2X.Core;
+using Sfs2X.Entities.Data;
 using Sfs2X.Requests;
 using UnityEngine;
 
 namespace Application
 {
-    public class SignUpManager : MonoBehaviour, INetworkListener
+    public class SignUpManager : MonoBehaviour
     {
-        private readonly string _extension = "$SignUp.Submit";
-        public void Event(BaseEvent e)
-        {
-            Debug.Log($"Signup was {(bool)e.Params["success"]}");
-        }
-
-        private void Start()
-        {
-            NetworkCommand.AddNetworkEventListener(SFSEvent.EXTENSION_RESPONSE, this);
-        }
-
         public void SendRequest(UserInfo info)
         {
-            NetworkCommand.SendRequest(new ExtensionRequest(_extension, info.ToSFS()));
+            NetworkAPI.SendRequest(new ExtensionRequest("$SignUp.Submit", info.ToSFSO()), SFSEvent.EXTENSION_RESPONSE, Event);
+        }
+        //TODO: Create a function that handles the incoming event
+        private void Event(BaseEvent e)
+        {
+            SFSObject param = (SFSObject)e.Params["params"];
+            if (param.GetBool("success"))
+            {
+                Debug.Log("Sign up Successful");
+                return;
+            }
+
+            Debug.Log(param.GetUtfString("errorMessage"));
         }
 
     }

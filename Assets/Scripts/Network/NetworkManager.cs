@@ -2,7 +2,9 @@ using UnityEngine;
 using Sfs2X;
 using Sfs2X.Core;
 using Sfs2X.Requests;
-using System.Collections.Generic;
+using System.Collections;
+using System.Threading.Tasks;
+using System;
 
 namespace Network
 {
@@ -10,75 +12,17 @@ namespace Network
     {
         [SerializeField] private Model.NetworkModelInfo _networkModel;
         private SmartFox _smartFox;
-        private Dictionary<string, List<INetworkListener>> _eventListeners = new();
-        private Queue<IRequest> _waitQueue = new();
-
-
-        public void AddNetworkEventListener(string sfsEvent, INetworkListener listener)
+        public void SendRequest(IRequest request, string requestType, Action<BaseEvent> action)
         {
-            //TODO: Check If thread safety will hurt the proccess
-            if (!_eventListeners.TryGetValue(sfsEvent, out List<INetworkListener> listeners))
-            {
-                var newlisteners = new List<INetworkListener>() { listener };
-                _eventListeners.Add(sfsEvent, newlisteners);
-                _smartFox.AddEventListener(sfsEvent, HandleEvents);
-                return;
-            }
-
-            if (listeners.Contains(listener))
-                return;
-
-            listeners.Add(listener);
-
-        }
-
-        public void RemoveNetworkEventListener(string sfsEvent, INetworkListener listener)
-        {
-            if (_eventListeners.TryGetValue(sfsEvent, out List<INetworkListener> listeners))
-            {
-                listeners.Remove(listener);
-            }
-            else
-            {
-                var newlisteners = new List<INetworkListener>();
-                newlisteners.Add(listener);
-                _eventListeners.Add(sfsEvent, newlisteners);
-            }
-        }
-        public void Connect()
-        {
-            if (_smartFox == null || _smartFox.IsConnected)
-                return;
-            _smartFox.Connect(_networkModel.ServerIp, _networkModel.ServerPort);
-        }
-
-        //Check for the connection upon sending requests and try to connect if you are not connected
-        //Store the sent request in a queue to wait for the connection to happen
-        public void SendRequest(IRequest request)
-        {
-            if (_smartFox == null)
+            if (_smartFox == null || !_smartFox.IsConnected)
                 throw new System.Exception("Smartfox is not initialized");
 
-            if (!_smartFox.IsConnected)
-            {
-                Connect();
-                _waitQueue.Enqueue(request);
-                return;
-            }
-
-            _smartFox.Send(request);
+            StartCoroutine(SendRequest_Cor(request, requestType, action));
         }
-
-
         private void Awake()
         {
             _smartFox = new SmartFox();
             Application.runInBackground = true;
-        }
-
-        private void Start()
-        {
-            _smartFox.AddEventListener(SFSEvent.CONNECTION, OnConnection);
         }
 
         private void Update()
@@ -86,8 +30,6 @@ namespace Network
             if(_smartFox!=null)
                 _smartFox.ProcessEvents();
         }
-
-        
         private void OnApplicationQuit()
         {
             if (_smartFox == null || !_smartFox.IsConnected)
@@ -96,24 +38,62 @@ namespace Network
             _smartFox.Disconnect();
         }
 
-        private void HandleEvents(BaseEvent e)
+        private void Start()
         {
-            if (!_eventListeners.ContainsKey(e.Type))
-                return;
-
-            foreach(var listener in _eventListeners[e.Type])
-            {
-                listener.Event(e);
-            }
+            StartCoroutine(EnterZone_Cor());
         }
 
-        private void OnConnection(BaseEvent e)
+        #region Connection And Entering Zone
+        private IEnumerator EnterZone_Cor()
         {
-            //Try to send the requests again
-            while(_waitQueue.Count>0)
-            {
-                SendRequest(_waitQueue.Dequeue());
-            }
+            Task<BaseEvent> task = ConnectToTheServer();
+            yield return new WaitUntil(()=>task.IsCompleted);
+            if (!(bool)task.Result.Params["success"])
+                yield break;
+
+            Task<BaseEvent> loginTask = SendRequest(new LoginRequest("", "", _networkModel.ZoneName), SFSEvent.LOGIN);
+            yield return new WaitUntil(() => loginTask.IsCompleted);
+
         }
+        private Task<BaseEvent> ConnectToTheServer()
+        {
+            var taskCompletionSource = new TaskCompletionSource<BaseEvent>();
+
+            _smartFox.AddEventListener(SFSEvent.CONNECTION, evt =>
+            {
+                taskCompletionSource.SetResult(evt);
+                _smartFox.RemoveEventListener(SFSEvent.CONNECTION, null);
+
+            });
+            _smartFox.Connect(_networkModel.ServerIp, _networkModel.ServerPort);
+            return taskCompletionSource.Task;
+        }
+        #endregion
+
+        #region RequestSending
+
+        private IEnumerator SendRequest_Cor(IRequest request, string requestType, Action<BaseEvent> action)
+        {
+            Task<BaseEvent> task = SendRequest(request,requestType);
+            yield return new WaitUntil(() => task.IsCompleted);
+            action?.Invoke(task.Result);
+        }
+
+        private Task<BaseEvent> SendRequest(IRequest request, string requestType)
+        {
+            var taskCompletionSource = new TaskCompletionSource<BaseEvent>();
+
+            _smartFox.AddEventListener(requestType, evt =>
+            {
+                taskCompletionSource.SetResult(evt);
+                _smartFox.RemoveEventListener(requestType, null);
+
+            });
+            _smartFox.Send(request);
+            return taskCompletionSource.Task;
+        }
+
+        #endregion
+
     }
 }

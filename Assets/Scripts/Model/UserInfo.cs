@@ -6,12 +6,11 @@ namespace Model
     {
         public string Username;
         public string Password;
-
-        public SFSObject ToSFS()
+        public SFSObject ToSFSO()
         {
             var sfso = new SFSObject();
 
-            sfso.PutUtfString("password", Username);
+            sfso.PutUtfString("username", Username);
             sfso.PutUtfString("password", Password);
             return sfso;
         }
