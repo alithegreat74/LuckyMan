@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="LuckyManExtension:jar">
+    <output-path>$PROJECT_DIR$/../../../SFS/SmartFoxServer_2X/SFS2X/extensions/LuckyMan</output-path>
+    <root id="archive" name="LuckyManExtension.jar">
+      <element id="module-output" name="LuckyManExtension" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../SFS/SmartFoxServer_2X/SFS2X/lib/sfs2x.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../SFS/SmartFoxServer_2X/SFS2X/lib/sfs2x-core.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
