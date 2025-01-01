@@ -13,9 +13,6 @@ namespace Network
     {
         [SerializeField] private Model.NetworkModelInfo _networkModel;
         private SmartFox _smartFox;
-
-        private static NetworkManager _instance;
-
         public bool IsLoggedIn() => _smartFox.CurrentZone != null;
         public bool IsConnected() => _smartFox.IsConnected;
         public void SendRequest(IRequest request, List<NetworkEventSubscription> subscriptions)
@@ -28,15 +25,6 @@ namespace Network
 
         private void Awake()
         {
-            if (_instance == null)
-            {
-                _instance = this;
-                DontDestroyOnLoad(gameObject);
-            }
-            else if (_instance!=this)
-            {
-                Destroy(gameObject);
-            }
             _smartFox = new SmartFox();
             Application.runInBackground = true;
         }

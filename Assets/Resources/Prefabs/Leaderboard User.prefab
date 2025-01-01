@@ -146,8 +146,9 @@ GameObject:
   - component: {fileID: 6814430747890148655}
   - component: {fileID: 9118482320892442680}
   - component: {fileID: 7969625795558555339}
+  - component: {fileID: 9062385365450341379}
   m_Layer: 5
-  m_Name: Leaderboard Entity
+  m_Name: Leaderboard User
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -166,8 +167,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5088589165019629753}
-  - {fileID: 1440243814296147331}
   - {fileID: 5795065266899975487}
+  - {fileID: 1440243814296147331}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -236,6 +237,21 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 1
   m_TargetDisplay: 0
+--- !u!114 &9062385365450341379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1550698471766334158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49f7f4317e1180d4686e0153dae30cb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _indexText: {fileID: 4386581711774516780}
+  _usernameText: {fileID: 904296535509216172}
+  _scoreText: {fileID: 4226039690701036682}
 --- !u!1 &1833766739567899902
 GameObject:
   m_ObjectHideFlags: 0

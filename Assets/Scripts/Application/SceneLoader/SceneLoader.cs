@@ -15,7 +15,7 @@ namespace Application
         {
             for(int i=1;i<SceneManager.sceneCount;i++)
             {
-                SceneManager.UnloadSceneAsync(i);
+                SceneManager.UnloadSceneAsync(SceneManager.GetSceneAt(i));
             }
         }
     }
