@@ -4,27 +4,42 @@ using Sfs2X.Core;
 using Sfs2X.Requests;
 using System.Collections;
 using System.Threading.Tasks;
+using Model;
+using System.Collections.Generic;
 using System;
-
 namespace Network
 {
     public class NetworkManager : MonoBehaviour
     {
         [SerializeField] private Model.NetworkModelInfo _networkModel;
         private SmartFox _smartFox;
-        public void SendRequest(IRequest request, string requestType, Action<BaseEvent> action)
+
+        private static NetworkManager _instance;
+
+        public bool IsLoggedIn() => _smartFox.CurrentZone != null;
+        public bool IsConnected() => _smartFox.IsConnected;
+        public void SendRequest(IRequest request, List<NetworkEventSubscription> subscriptions)
         {
-            if (_smartFox == null || !_smartFox.IsConnected)
+            if (_smartFox == null)
                 throw new System.Exception("Smartfox is not initialized");
 
-            StartCoroutine(SendRequest_Cor(request, requestType, action));
+            StartCoroutine(SendRequest_Cor(request, subscriptions));
         }
+
         private void Awake()
         {
+            if (_instance == null)
+            {
+                _instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else if (_instance!=this)
+            {
+                Destroy(gameObject);
+            }
             _smartFox = new SmartFox();
             Application.runInBackground = true;
         }
-
         private void Update()
         {
             if(_smartFox!=null)
@@ -37,21 +52,19 @@ namespace Network
 
             _smartFox.Disconnect();
         }
-
         private void Start()
         {
-            StartCoroutine(EnterZone_Cor());
+            StartCoroutine(InitializeServer_Cor());
         }
-
         #region Connection And Entering Zone
-        private IEnumerator EnterZone_Cor()
+        private IEnumerator InitializeServer_Cor()
         {
             Task<BaseEvent> task = ConnectToTheServer();
-            yield return new WaitUntil(()=>task.IsCompleted);
+            yield return new WaitUntil(() => task.IsCompleted);
             if (!(bool)task.Result.Params["success"])
                 yield break;
 
-            Task<BaseEvent> loginTask = SendRequest(new LoginRequest("", "", _networkModel.ZoneName), SFSEvent.LOGIN);
+            Task<BaseEvent> loginTask = SendRequest_Task(new LoginRequest("", "", _networkModel.ZoneName), new List<NetworkEventSubscription>());
             yield return new WaitUntil(() => loginTask.IsCompleted);
 
         }
@@ -69,31 +82,36 @@ namespace Network
             return taskCompletionSource.Task;
         }
         #endregion
-
         #region RequestSending
 
-        private IEnumerator SendRequest_Cor(IRequest request, string requestType, Action<BaseEvent> action)
+        private IEnumerator SendRequest_Cor(IRequest request, List<NetworkEventSubscription> subscriptions)
         {
-            Task<BaseEvent> task = SendRequest(request,requestType);
+            if(!_smartFox.IsConnected)
+            {
+                Task<BaseEvent> connection = ConnectToTheServer();
+                yield return new WaitUntil(() => connection.IsCompleted);
+            }
+
+            Task<BaseEvent> task = SendRequest_Task(request,subscriptions);
             yield return new WaitUntil(() => task.IsCompleted);
-            action?.Invoke(task.Result);
         }
 
-        private Task<BaseEvent> SendRequest(IRequest request, string requestType)
+        private Task<BaseEvent> SendRequest_Task(IRequest request, List<NetworkEventSubscription> subscriptions)
         {
             var taskCompletionSource = new TaskCompletionSource<BaseEvent>();
-
-            _smartFox.AddEventListener(requestType, evt =>
+            foreach (var subscription in subscriptions)
             {
-                taskCompletionSource.SetResult(evt);
-                _smartFox.RemoveEventListener(requestType, null);
-
-            });
+                _smartFox.AddEventListener(subscription.EventName, e =>
+                {
+                    _smartFox.RemoveAllEventListeners();
+                    subscription.Action?.Invoke(e);
+                });
+            }
             _smartFox.Send(request);
             return taskCompletionSource.Task;
         }
 
-        #endregion
 
+        #endregion
     }
 }

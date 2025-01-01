@@ -1,6 +1,8 @@
+using Model;
 using Sfs2X.Core;
 using Sfs2X.Requests;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Network
@@ -14,9 +16,11 @@ namespace Network
         {
             _networkManager = GetComponent<NetworkManager>();
         }
-        public static void SendRequest(IRequest request, string requestType, Action<BaseEvent> action)
+        public static void SendRequest(IRequest request, List<NetworkEventSubscription> subscriptions)
         {
-            _networkManager.SendRequest(request, requestType, action);
+            _networkManager.SendRequest(request, subscriptions);
         }
+        public static bool IsLoggedIn() => _networkManager.IsLoggedIn();
+        public static bool IsConnected() => _networkManager.IsConnected();
     }
 }

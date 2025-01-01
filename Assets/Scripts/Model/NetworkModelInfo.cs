@@ -8,7 +8,7 @@ namespace Model
     {
         public string ServerIp = "127.0.0.1";
         public int ServerPort = 9933;
-        public string ZoneName = "BasicExamples";
+        public string ZoneName = "SignUp";
     }
 
 }
