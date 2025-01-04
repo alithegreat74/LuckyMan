@@ -8,8 +8,7 @@ public class LoginHandler {
     public LoginHandler(SFSExtension extension){
         loginAssistantComponent = new LoginAssistantComponent(extension);
     }
-    public LoginAssistantComponent getLoginAssistantComponent()
-    {
+    public LoginAssistantComponent getLoginAssistantComponent() {
         return loginAssistantComponent;
     }
 }

@@ -12,13 +12,11 @@ namespace Application
         [SerializeField] private TMP_InputField _passwordInput;
         [SerializeField] private TMP_InputField _confirmPasswordInput;
         [SerializeField] private Button _signupButton;
-        [SerializeField] private Button _loginButton;
 
 
         private void Awake()
         {
             _signupButton.onClick.AddListener(SignUpButtonClicked);
-            _loginButton.onClick.AddListener(LoginButtonClicked);
         }
 
         private void SignUpButtonClicked()
@@ -30,10 +28,6 @@ namespace Application
             var info = new UserInfo() { Username=_usernameInput.text, Password=_passwordInput.text };
 
             GetComponent<SignUpManager>().SendRequest(info);
-        }
-        private void LoginButtonClicked()
-        {
-            SceneManager.LoadScene("Login");
         }
     }
 

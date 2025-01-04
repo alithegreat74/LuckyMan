@@ -31,7 +31,7 @@ namespace Application
                 foreach (var user in userArray)
                 {
                     SFSObject userObject = (SFSObject)user;
-                    var userInfo = new PublicUserInfo(userObject.GetUtfString("username"), userObject.GetInt("score"));
+                    var userInfo = new PublicUserInfo(userObject.GetUtfString("username"), userObject.GetInt("xp"));
                     userInfoList.Add(userInfo);
                 }
                 _leaderboardUI.LoadLeaderBoard(userInfoList);

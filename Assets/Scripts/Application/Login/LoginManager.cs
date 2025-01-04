@@ -32,7 +32,7 @@ namespace Application
         private void LoginSuccess(BaseEvent e)
         { 
             Debug.Log("logged in successfully");
-            SceneLoader.LoadScene("Leader Board");
+            SceneLoader.LoadScene("Main Menu");
         }
 
         private void LoginError(BaseEvent e)

@@ -6,23 +6,25 @@ using System.Collections;
 using System.Threading.Tasks;
 using Model;
 using System.Collections.Generic;
-using System;
+using Sfs2X.Entities;
+
 namespace Network
 {
     public class NetworkManager : MonoBehaviour
     {
         [SerializeField] private Model.NetworkModelInfo _networkModel;
         private SmartFox _smartFox;
-        public bool IsLoggedIn() => _smartFox.CurrentZone != null;
-        public bool IsConnected() => _smartFox.IsConnected;
+        private List<NetworkEventSubscription> _permenantEventSubscribers = new();
         public void SendRequest(IRequest request, List<NetworkEventSubscription> subscriptions)
         {
             if (_smartFox == null)
                 throw new System.Exception("Smartfox is not initialized");
-
             StartCoroutine(SendRequest_Cor(request, subscriptions));
         }
-
+        public void SubscribeToEvent(NetworkEventSubscription subscription) => _smartFox.AddEventListener(subscription.EventName,subscription.Action);
+        public void UnSubscribeToEvent(NetworkEventSubscription subscription) => _smartFox.RemoveEventListener(subscription.EventName,subscription.Action);
+        public User GetMyself() => _smartFox.MySelf;
+        public Room GetCurrentRoom() => _smartFox.LastJoinedRoom;
         private void Awake()
         {
             _smartFox = new SmartFox();
@@ -71,7 +73,6 @@ namespace Network
         }
         #endregion
         #region RequestSending
-
         private IEnumerator SendRequest_Cor(IRequest request, List<NetworkEventSubscription> subscriptions)
         {
             if(!_smartFox.IsConnected)
@@ -82,8 +83,9 @@ namespace Network
 
             Task<BaseEvent> task = SendRequest_Task(request,subscriptions);
             yield return new WaitUntil(() => task.IsCompleted);
-        }
 
+            EventListenerCleanup(subscriptions);
+        }
         private Task<BaseEvent> SendRequest_Task(IRequest request, List<NetworkEventSubscription> subscriptions)
         {
             var taskCompletionSource = new TaskCompletionSource<BaseEvent>();
@@ -91,15 +93,20 @@ namespace Network
             {
                 _smartFox.AddEventListener(subscription.EventName, e =>
                 {
-                    _smartFox.RemoveAllEventListeners();
                     subscription.Action?.Invoke(e);
                 });
             }
             _smartFox.Send(request);
             return taskCompletionSource.Task;
         }
-
-
+        //In order to make the unecessary events not trigger we un register them from sfs
+        private void EventListenerCleanup(List<NetworkEventSubscription> subscriptions)
+        {
+            foreach (var subscription in subscriptions)
+            {
+                _smartFox.RemoveEventListener(subscription.EventName, subscription.Action);
+            }
+        }
         #endregion
     }
 }

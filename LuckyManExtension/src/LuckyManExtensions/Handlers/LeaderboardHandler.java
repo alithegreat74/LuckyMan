@@ -15,9 +15,9 @@ public class LeaderboardHandler extends BaseClientRequestHandler {
     @Override
     public void handleClientRequest(User user, ISFSObject isfsObject) {
         IDBManager dbManager = getParentExtension().getParentZone().getDBManager();
-        String query = "SELECT id, username, score\n" +
+        String query = "SELECT id, username, xp\n" +
                 "FROM users\n" +
-                "ORDER BY score DESC\n" +
+                "ORDER BY xp DESC\n" +
                 "LIMIT 10;\n";
         try{
             ISFSArray queryResult = dbManager.executeQuery(query,new Object[]{});

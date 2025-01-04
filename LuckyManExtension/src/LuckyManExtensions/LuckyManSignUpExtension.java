@@ -1,7 +1,6 @@
 package LuckyManExtensions;
 
 import LuckyManExtensions.Handlers.SignUpHandler;
-import com.smartfoxserver.v2.components.signup.PasswordMode;
 import com.smartfoxserver.v2.components.signup.SignUpAssistantComponent;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 

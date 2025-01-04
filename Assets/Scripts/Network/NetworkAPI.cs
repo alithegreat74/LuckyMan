@@ -1,7 +1,6 @@
 using Model;
-using Sfs2X.Core;
+using Sfs2X.Entities;
 using Sfs2X.Requests;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,7 +19,9 @@ namespace Network
         {
             _networkManager.SendRequest(request, subscriptions);
         }
-        public static bool IsLoggedIn() => _networkManager.IsLoggedIn();
-        public static bool IsConnected() => _networkManager.IsConnected();
+        public static void SubscribeToEvent(NetworkEventSubscription subscription) => _networkManager.SubscribeToEvent(subscription);
+        public static void UnSubscribeFromEvent(NetworkEventSubscription subscription) => _networkManager.UnSubscribeToEvent(subscription);
+        public static User GetMyself()=>_networkManager.GetMyself();
+        public static Room GetCurrentRoom() => _networkManager.GetCurrentRoom();
     }
 }

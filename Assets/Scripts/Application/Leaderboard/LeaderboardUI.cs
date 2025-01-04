@@ -13,11 +13,11 @@ namespace Application
 
             public void LoadLeaderBoard(List<PublicUserInfo> userInfo)
             {
-                for(int i = 0; i < userInfo.Count; i++)
+                for (int i = 0; i < userInfo.Count; i++)
                 {
                     GameObject obj = Instantiate(_leaderboardUserPrefab, _leaderboardContentTransform);
                     obj.GetComponent<LeaderBoardUser>().Initialize(i, userInfo[i]);
-                }   
+                }
             }
 
         }

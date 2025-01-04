@@ -6,8 +6,8 @@ namespace Model
     public struct NetworkEventSubscription
     {
         public string EventName;
-        public Action<BaseEvent> Action;
-        public NetworkEventSubscription(string eventName, Action<BaseEvent> action)
+        public EventListenerDelegate Action;
+        public NetworkEventSubscription(string eventName, EventListenerDelegate action)
         {
             EventName = eventName;
             Action = action;
