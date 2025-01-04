@@ -23,5 +23,6 @@ namespace Network
         public static void UnSubscribeFromEvent(NetworkEventSubscription subscription) => _networkManager.UnSubscribeToEvent(subscription);
         public static User GetMyself()=>_networkManager.GetMyself();
         public static Room GetCurrentRoom() => _networkManager.GetCurrentRoom();
+        public static string GetCurrentZone() => _networkManager.GetCurrentZone();
     }
 }

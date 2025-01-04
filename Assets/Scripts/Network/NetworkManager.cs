@@ -25,6 +25,7 @@ namespace Network
         public void UnSubscribeToEvent(NetworkEventSubscription subscription) => _smartFox.RemoveEventListener(subscription.EventName,subscription.Action);
         public User GetMyself() => _smartFox.MySelf;
         public Room GetCurrentRoom() => _smartFox.LastJoinedRoom;
+        public string GetCurrentZone() => _smartFox.CurrentZone;
         private void Awake()
         {
             _smartFox = new SmartFox();
@@ -93,6 +94,7 @@ namespace Network
             {
                 _smartFox.AddEventListener(subscription.EventName, e =>
                 {
+                    _smartFox.RemoveEventListener(subscription.EventName, subscription.Action);
                     subscription.Action?.Invoke(e);
                 });
             }

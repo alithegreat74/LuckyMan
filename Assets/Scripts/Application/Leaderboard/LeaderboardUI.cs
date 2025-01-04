@@ -19,7 +19,13 @@ namespace Application
                     obj.GetComponent<LeaderBoardUser>().Initialize(i, userInfo[i]);
                 }
             }
-
+            private void OnDestroy()
+            {
+                for(int i=0;i<_leaderboardContentTransform.childCount;i++)
+                {
+                    Destroy(_leaderboardContentTransform.GetChild(i));
+                }
+            }
         }
 
     }

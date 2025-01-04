@@ -21,6 +21,7 @@ namespace Application
             [SerializeField] private TextMeshProUGUI _opponentScoreText;
             [Header("Common")]
             [SerializeField] private Button _playButton;
+            [SerializeField] private Button _returnToMainMenuButton;
             [SerializeField] private TextMeshProUGUI _playPrompt;
             [SerializeField] private TextMeshProUGUI _gameResultPrompt;
 
@@ -35,13 +36,14 @@ namespace Application
                 {
                     _playButton.gameObject.SetActive(false);
                     _playPrompt.text = "";
+                    _returnToMainMenuButton.gameObject.SetActive(true);
                     return;
                 }
                 _playButton.interactable = playersTurn;
                 _playPrompt.text = playersTurn ? "Your Turn" : "Opponents Turn";
             }
 
-            public void InitializeUI(string playerUsername, string opponentUsername, UnityAction buttonClickAction, bool playersTurn)
+            public void InitializeUI(string playerUsername, string opponentUsername, UnityAction playButtonClickAction, UnityAction returnButtonClickAction, bool playersTurn)
             {
                 _playerUsername.text = playerUsername;
                 _opponentUsername.text = opponentUsername;
@@ -49,7 +51,8 @@ namespace Application
                 _opponentScoreSlider.value = 0;
                 _playerScoreText.text = "0";
                 _opponentScoreText.text = "0";
-                _playButton.onClick.AddListener(buttonClickAction);
+                _playButton.onClick.AddListener(playButtonClickAction);
+                _returnToMainMenuButton.onClick.AddListener(returnButtonClickAction);
                 _playButton.interactable = playersTurn;
                 _playPrompt.text = playersTurn ? "Your Turn" : "Opponents Turn";
                 _gameResultPrompt.text = "";
@@ -69,6 +72,7 @@ namespace Application
                 }
                 return false;
             }
+            
         }
     }
 }

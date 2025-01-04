@@ -32,7 +32,7 @@ namespace Application
                 Room currentRoom = NetworkAPI.GetCurrentRoom();
                 List<User> userList = currentRoom.PlayerList;
                 bool isPlayersTurn = currentRoom.GetVariable("startingUser").GetIntValue() == myself.Id;
-                _matchUI.InitializeUI(myself.Name, userList[0].Id == myself.Id ? userList[1].Name : userList[0].Name, PlayButtonClicked, isPlayersTurn);
+                _matchUI.InitializeUI(myself.Name, userList[0].Id == myself.Id ? userList[1].Name : userList[0].Name, PlayButtonClicked, ReturnToMainMenu, isPlayersTurn);
             }
             private void OnDestroy()
             {
@@ -65,6 +65,10 @@ namespace Application
                 _opponentVariables.FromSFSUserVariable(user.GetVariables());
                 _matchUI.UpdateUI(_playerVariables, _opponentVariables, true);
 
+            }
+            private void ReturnToMainMenu()
+            {
+                NetworkAPI.SendRequest(new LeaveRoomRequest(),new());
             }
         }
 

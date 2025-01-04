@@ -30,16 +30,18 @@ namespace Application
             NetworkAPI.SendRequest(new LoginRequest(_userInfo.Username, _userInfo.Password, "BasicExamples"), _subcriptions);
         }
         private void LoginSuccess(BaseEvent e)
-        { 
-            Debug.Log("logged in successfully");
-            SceneLoader.LoadScene("Main Menu");
+        {
+            if (NetworkAPI.GetCurrentZone() == "BasicExamples")
+            {
+                Debug.Log("Logged in successfully");
+                SceneLoader.LoadScene("Main Menu");
+            }
         }
 
         private void LoginError(BaseEvent e)
         {
             //Re-Enter guest zone
             Debug.Log((string)e.Params["errorMessage"]);
-            NetworkAPI.SendRequest(new LoginRequest("", "", "SignUp"), new());
         }
     }
 }

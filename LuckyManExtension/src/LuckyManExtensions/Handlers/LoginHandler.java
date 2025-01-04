@@ -7,6 +7,7 @@ public class LoginHandler {
     private final LoginAssistantComponent loginAssistantComponent;
     public LoginHandler(SFSExtension extension){
         loginAssistantComponent = new LoginAssistantComponent(extension);
+        loginAssistantComponent.getConfig().allowGuests= false;
     }
     public LoginAssistantComponent getLoginAssistantComponent() {
         return loginAssistantComponent;

@@ -12,10 +12,11 @@ namespace Application
     {
         public class LeaderboardManager : MonoBehaviour
         {
-            private LeaderboardUI _leaderboardUI => GetComponent<LeaderboardUI>();
+            private LeaderboardUI _leaderboardUI;
 
             private void Start()
             {
+                _leaderboardUI = GetComponent<LeaderboardUI>();
                 SendLeaderboardRequest();
             }
 
