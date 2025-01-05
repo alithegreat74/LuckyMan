@@ -31,17 +31,17 @@ namespace Application
         }
         private void LoginSuccess(BaseEvent e)
         {
-            if (NetworkAPI.GetCurrentZone() == "BasicExamples")
-            {
-                Debug.Log("Logged in successfully");
-                SceneLoader.LoadScene("Main Menu");
-            }
+            if (NetworkAPI.GetCurrentZone() != "BasicExamples")
+                return;
+            Debug.Log("Logged in successfully");
+            SceneLoader.LoadScene("Main Menu");
         }
 
         private void LoginError(BaseEvent e)
         {
             //Re-Enter guest zone
             Debug.Log((string)e.Params["errorMessage"]);
+            NetworkAPI.SendRequest(new LoginRequest("", "", "SignUp"), new());
         }
     }
 }
