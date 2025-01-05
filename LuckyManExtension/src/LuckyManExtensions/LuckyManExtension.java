@@ -1,13 +1,13 @@
 package LuckyManExtensions;
 import LuckyManExtensions.Handlers.LeaderboardHandler;
-import LuckyManExtensions.Handlers.LoginHandler;
+import LuckyManExtensions.EventListeners.LoginHandler;
+import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 
 public class LuckyManExtension extends SFSExtension {
-    private  LoginHandler loginHandler;
     @Override
     public void init() {
-        loginHandler = new LoginHandler(this);
+        addEventHandler(SFSEventType.USER_LOGIN, LoginHandler.class);
         addRequestHandler("getLeaderboard", LeaderboardHandler.class);
     }
     @Override
