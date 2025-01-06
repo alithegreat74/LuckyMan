@@ -25,7 +25,20 @@ namespace Application
             [SerializeField] private TextMeshProUGUI _playPrompt;
             [SerializeField] private TextMeshProUGUI _gameResultPrompt;
 
-            
+            public void InitializeUI(string playerUsername, string opponentUsername, UnityAction playButtonClickAction, UnityAction returnButtonClickAction, bool playersTurn)
+            {
+                _playerUsername.text = playerUsername;
+                _opponentUsername.text = opponentUsername;
+                _playerScoreSlider.value = 0;
+                _opponentScoreSlider.value = 0;
+                _playerScoreText.text = "0";
+                _opponentScoreText.text = "0";
+                _playButton.onClick.AddListener(playButtonClickAction);
+                _returnToMainMenuButton.onClick.AddListener(returnButtonClickAction);
+                _playButton.interactable = playersTurn;
+                _playPrompt.text = playersTurn ? "Your Turn" : "Opponents Turn";
+                _gameResultPrompt.text = "";
+            }
             public void UpdateUI(UserMatchVariables playerVariables, UserMatchVariables opponentVariables, bool playersTurn)
             {
                 _playerScoreSlider.value = playerVariables.CurrentScore;
@@ -41,21 +54,6 @@ namespace Application
                 }
                 _playButton.interactable = playersTurn;
                 _playPrompt.text = playersTurn ? "Your Turn" : "Opponents Turn";
-            }
-
-            public void InitializeUI(string playerUsername, string opponentUsername, UnityAction playButtonClickAction, UnityAction returnButtonClickAction, bool playersTurn)
-            {
-                _playerUsername.text = playerUsername;
-                _opponentUsername.text = opponentUsername;
-                _playerScoreSlider.value = 0;
-                _opponentScoreSlider.value = 0;
-                _playerScoreText.text = "0";
-                _opponentScoreText.text = "0";
-                _playButton.onClick.AddListener(playButtonClickAction);
-                _returnToMainMenuButton.onClick.AddListener(returnButtonClickAction);
-                _playButton.interactable = playersTurn;
-                _playPrompt.text = playersTurn ? "Your Turn" : "Opponents Turn";
-                _gameResultPrompt.text = "";
             }
 
             public bool CheckGameWin(UserMatchVariables playerVariables, UserMatchVariables opponentVariables)

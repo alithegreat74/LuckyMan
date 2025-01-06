@@ -43,10 +43,9 @@ namespace Application
             private void UserLeftGame(BaseEvent e)
             {
                 var room = (Room)e.Params["room"];
-                if (room.IsGame)
+                if (room.IsGame && !_matchUI.CheckGameWin(_playerVariables, _opponentVariables))
                     return;
                 SceneLoader.LoadScene("Main Menu");
-
             }
             private void PlayButtonClicked()
             {
