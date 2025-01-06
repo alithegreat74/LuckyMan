@@ -20,7 +20,7 @@ namespace Application
         private void LoginButtonClicked()
         {
             UserInfo loginInfo = new UserInfo() { Username = _usernameInput.text, Password = _paswordInput.text };
-            GetComponent<LoginManager>().SendLoginRequest(loginInfo);
+            GetComponent<LoginManager>().LoginSequence(loginInfo);
         }
     }
 

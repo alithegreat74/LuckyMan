@@ -15,23 +15,31 @@ public class LoginHandler extends BaseServerEventHandler {
     @Override
     public void handleServerEvent(ISFSEvent isfsEvent) throws SFSException {
         String username = (String)isfsEvent.getParameter(SFSEventParam.LOGIN_NAME);
-        String password = (String)isfsEvent.getParameter(SFSEventParam.LOGIN_PASSWORD);
+        String cryptedPass = (String)isfsEvent.getParameter(SFSEventParam.LOGIN_PASSWORD);
         ISession session = (ISession) isfsEvent.getParameter(SFSEventParam.SESSION);
-        String query = "Select id from users where username = ? and password = ?";
+        String query = "SELECT id, password FROM users WHERE username = ?";
         IDBManager dbManager = getParentExtension().getParentZone().getDBManager();
-        try{
-            ISFSArray queryResult = dbManager.executeQuery(query,new Object[]{username,password});
 
+        try{
+            ISFSArray queryResult = dbManager.executeQuery(query,new Object[]{username});
             if(queryResult.size()<=0)
             {
-                SFSErrorData errData = new SFSErrorData(SFSErrorCode.LOGIN_BAD_PASSWORD);
+                SFSErrorData errData = new SFSErrorData(SFSErrorCode.LOGIN_BAD_USERNAME);
                 throw new SFSLoginException("wrong username or password" , errData);
             }
-            int userID = queryResult.getInt(0);
+            String storedHashedPassword = queryResult.getSFSObject(0).getUtfString("password");
+            if(!getApi().checkSecurePassword(session,storedHashedPassword,cryptedPass)){
+                SFSErrorData data = new SFSErrorData(SFSErrorCode.LOGIN_BAD_PASSWORD);
+                data.addParameter(username);
+                throw new SFSLoginException("Login failed for user: "  + username, data);
+            }
+            int userID = queryResult.getSFSObject(0).getInt("id");
             session.setProperty("dbID", userID);
         }
         catch (Exception e){
-            trace("Database Error" + e.getMessage());
+            trace("Database Error " + e.getMessage());
+            SFSErrorData errData = new SFSErrorData(SFSErrorCode.LOGIN_BAD_PASSWORD);
+            throw new SFSLoginException("wrong username or password");
         }
     }
 }

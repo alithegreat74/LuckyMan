@@ -4,7 +4,6 @@ using Sfs2X.Core;
 using Sfs2X.Requests;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 namespace Application
 {
     public class LoginManager : MonoBehaviour
@@ -19,10 +18,10 @@ namespace Application
                 new NetworkEventSubscription(SFSEvent.LOGIN_ERROR,LoginError)
             };
         }
-        public void SendLoginRequest(UserInfo info)
+        public void LoginSequence(UserInfo info)
         {
             _userInfo = info;
-            //Logout first from signup
+            //Logout from signup first
             NetworkAPI.SendRequest(new LogoutRequest(), new List<NetworkEventSubscription> { new NetworkEventSubscription(SFSEvent.LOGOUT, LogoutEvent) });
         }
         private void LogoutEvent(BaseEvent e)

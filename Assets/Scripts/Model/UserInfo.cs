@@ -6,7 +6,6 @@ namespace Model
     {
         public string Username;
         public string Password;
-        public int Score;
 
         public SFSObject ToSFSO()
         {
