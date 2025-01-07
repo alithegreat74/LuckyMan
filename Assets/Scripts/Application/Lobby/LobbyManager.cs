@@ -1,10 +1,11 @@
-using Network;
-using Sfs2X.Requests;
-using Sfs2X.Entities;
-using UnityEngine;
-using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
 using Model;
+using Network;
 using Sfs2X.Core;
+using Sfs2X.Entities;
+using Sfs2X.Requests;
+using UnityEngine;
 
 namespace Application
 {
@@ -12,37 +13,41 @@ namespace Application
     {
         public class LobbyManager : MonoBehaviour
         {
-            private void Start()
+            private async Task Start()
             {
-                JoinLobbyRequest();
-                NetworkAPI.SubscribeToEvent(new NetworkEventSubscription(SFSEvent.ROOM_JOIN, UserJoinedRoom));
+                NetworkAPI.SubscribeToEvent(
+                    new NetworkEventSubscription(SFSEvent.ROOM_JOIN, UserJoinedRoom)
+                );
+                await JoinLobbyRequest();
             }
-
 
             private void OnDestroy()
             {
-                NetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.ROOM_JOIN, UserJoinedRoom));
+                NetworkAPI.UnSubscribeFromEvent(
+                    new NetworkEventSubscription(SFSEvent.ROOM_JOIN, UserJoinedRoom)
+                );
             }
-            private void JoinLobbyRequest()
+
+            private async Task JoinLobbyRequest()
             {
-                NetworkAPI.SendRequest(new JoinRoomRequest(0),
-                    new List<NetworkEventSubscription>());
+                try
+                {
+                    await NetworkAPI.SendRequest(new JoinRoomRequest(0), SFSEvent.ROOM_JOIN);
+                }
+                catch (Exception e)
+                {
+                    Debug.Log(e);
+                }
             }
+
             private void UserJoinedRoom(BaseEvent e)
             {
                 Room room = (Room)e.Params["room"];
                 if (room.IsGame)
-                    LoadGameScene();
+                    SceneLoader.LoadScene("Game");
                 else
                     Debug.Log("Waiting for other people to join");
-
             }
-            private void LoadGameScene()
-            {
-                SceneLoader.LoadScene("Game");
-            }
-            
         }
-
     }
 }

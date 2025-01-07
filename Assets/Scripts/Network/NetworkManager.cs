@@ -1,109 +1,94 @@
-using UnityEngine;
-using Sfs2X;
-using Sfs2X.Core;
-using Sfs2X.Requests;
-using System.Collections;
+using System;
 using System.Threading.Tasks;
 using Model;
-using System.Collections.Generic;
+using Sfs2X;
+using Sfs2X.Core;
 using Sfs2X.Entities;
-using System;
+using Sfs2X.Requests;
+using UnityEngine;
+
 namespace Network
 {
     public class NetworkManager : MonoBehaviour
     {
-        [SerializeField] private Model.NetworkModelInfo _networkModel;
+        [SerializeField]
+        private Model.NetworkModelInfo _networkModel;
         private SmartFox _smartFox;
-        public void SendRequest(IRequest request, List<NetworkEventSubscription> subscriptions)
+
+        public async Task<BaseEvent> SendRequest(IRequest request, string sfsEvent)
         {
+            var taskCompletionSource = new TaskCompletionSource<BaseEvent>();
             if (_smartFox == null)
-                throw new System.Exception("Smartfox is not initialized");
-            StartCoroutine(SendRequest_Cor(request, subscriptions));
-        }
-        public void SubscribeToEvent(NetworkEventSubscription subscription) => _smartFox.AddEventListener(subscription.EventName,subscription.Action);
-        public void UnSubscribeToEvent(NetworkEventSubscription subscription) => _smartFox.RemoveEventListener(subscription.EventName,subscription.Action);
-        public User GetMyself() => _smartFox.MySelf;
-        public Room GetCurrentRoom() => _smartFox.LastJoinedRoom;
-        public string GetCurrentZone() => _smartFox.CurrentZone;
-        
-        private void Start()
-        {
-            StartCoroutine(InitializeServer_Cor());
-        }
-        #region Connection And Entering Zone
-        private IEnumerator InitializeServer_Cor()
-        {
-            Task<BaseEvent> task = ConnectToTheServer();
-            yield return new WaitUntil(() => task.IsCompleted);
-            if (!(bool)task.Result.Params["success"])
-                yield break;
-            Task<BaseEvent> loginTask = SendRequest_Task(new LoginRequest("", "", _networkModel.ZoneName), new List<NetworkEventSubscription>());
-            yield return new WaitUntil(() => loginTask.IsCompleted);
-
-        }
-        private Task<BaseEvent> ConnectToTheServer()
-        {
-            var taskCompletionSource = new TaskCompletionSource<BaseEvent>();
-            _smartFox.AddEventListener(SFSEvent.CONNECTION, evt =>
             {
-                taskCompletionSource.SetResult(evt);
-                _smartFox.RemoveEventListener(SFSEvent.CONNECTION, null);
-
-            });
-            _smartFox.Connect(_networkModel.ServerIp, _networkModel.ServerPort);
-            return taskCompletionSource.Task;
-        }
-        #endregion
-        #region RequestSending
-        private IEnumerator SendRequest_Cor(IRequest request, List<NetworkEventSubscription> subscriptions)
-        {
-            if (!_smartFox.IsConnected)
-            {
-                Task<BaseEvent> connection = ConnectToTheServer();
-                yield return new WaitUntil(() => connection.IsCompleted);
+                taskCompletionSource.SetException(new Exception("Smartfox is not initialized"));
+                return await taskCompletionSource.Task;
             }
-            Task<BaseEvent> task = SendRequest_Task(request, subscriptions);
-            yield return new WaitUntil(() => task.IsCompleted);
-        }
-        private Task<BaseEvent> SendRequest_Task(IRequest request, List<NetworkEventSubscription> subscriptions)
-        {
-            var taskCompletionSource = new TaskCompletionSource<BaseEvent>();
-            List<NetworkEventSubscription> eventListeners = new();
-            foreach (var subscription in subscriptions)
+            // creating a lambda that sets the result
+            // we need to Unsubscribe from it in order to not raise the thing
+            EventListenerDelegate lambda = null;
+            lambda = (BaseEvent e) =>
             {
-                EventListenerDelegate eventListener = evt =>
-                {
-                    EventListenerCleanup(eventListeners);
-                    subscription.Action(evt);
-                };
-                _smartFox.AddEventListener(subscription.EventName,eventListener);
-                eventListeners.Add(new NetworkEventSubscription(subscription.EventName,eventListener));
-            }
+                taskCompletionSource.SetResult(e);
+                _smartFox.RemoveEventListener(sfsEvent, lambda);
+            };
+            _smartFox.AddEventListener(sfsEvent, lambda);
             _smartFox.Send(request);
-            return taskCompletionSource.Task;
+            // What happens when your request times out
+            var timeoutTask = Task.Delay(_networkModel.Timeout)
+                .ContinueWith(t =>
+                {
+                    taskCompletionSource.TrySetException(new Exception("Request Timed Out"));
+                    _smartFox.RemoveEventListener(sfsEvent, lambda);
+                });
+
+            return
+                await Task.WhenAny(timeoutTask, taskCompletionSource.Task)
+                == taskCompletionSource.Task
+                ? await taskCompletionSource.Task
+                : throw new TimeoutException("Request Timed Out");
         }
 
-        private void EventListenerCleanup(List<NetworkEventSubscription> subscriptions)
-        {
-            foreach (var subscription in subscriptions)
-                _smartFox.RemoveEventListener(subscription.EventName, subscription.Action);
-        }
-        #endregion
+        public void SubscribeToEvent(NetworkEventSubscription subscription) =>
+            _smartFox.AddEventListener(subscription.EventName, subscription.Action);
+
+        public void UnSubscribeToEvent(NetworkEventSubscription subscription) =>
+            _smartFox.RemoveEventListener(subscription.EventName, subscription.Action);
+
+        public User GetMyself() => _smartFox.MySelf;
+
+        public Room GetCurrentRoom() => _smartFox.LastJoinedRoom;
+
+        public string GetCurrentZone() => _smartFox.CurrentZone;
+
         private void Awake()
         {
             _smartFox = new SmartFox();
             Application.runInBackground = true;
         }
+
         private void Update()
         {
             if (_smartFox != null)
                 _smartFox.ProcessEvents();
         }
+
         private void OnApplicationQuit()
         {
             if (_smartFox == null || !_smartFox.IsConnected)
                 return;
             _smartFox.Disconnect();
+        }
+
+        private void Start()
+        {
+            _smartFox.AddEventListener(SFSEvent.CONNECTION, OnConnect);
+            _smartFox.Connect(_networkModel.ServerIp, _networkModel.ServerPort);
+        }
+
+        // TODO: Handle zone login in a seperate async sequence
+        private void OnConnect(BaseEvent e)
+        {
+            _smartFox.Send(new LoginRequest("", "", _networkModel.ZoneName));
         }
     }
 }

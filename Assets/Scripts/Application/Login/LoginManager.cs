@@ -1,46 +1,36 @@
+using System;
+using System.Threading.Tasks;
 using Model;
 using Network;
 using Sfs2X.Core;
 using Sfs2X.Requests;
-using System.Collections.Generic;
 using UnityEngine;
+
 namespace Application
 {
     public class LoginManager : MonoBehaviour
     {
-        private UserInfo _userInfo;
-        private List<NetworkEventSubscription> _subcriptions;
-        private void Start()
+        public async Task LoginSequence(UserInfo info)
         {
-            _subcriptions = new List<NetworkEventSubscription>
+            try
             {
-                new NetworkEventSubscription(SFSEvent.LOGIN,LoginSuccess),
-                new NetworkEventSubscription(SFSEvent.LOGIN_ERROR,LoginError)
-            };
-        }
-        public void LoginSequence(UserInfo info)
-        {
-            _userInfo = info;
-            //Logout from signup first
-            NetworkAPI.SendRequest(new LogoutRequest(), new List<NetworkEventSubscription> { new NetworkEventSubscription(SFSEvent.LOGOUT, LogoutEvent) });
-        }
-        private void LogoutEvent(BaseEvent e)
-        {
-            NetworkAPI.SendRequest(new LoginRequest(_userInfo.Username, _userInfo.Password, "BasicExamples"), _subcriptions);
-        }
-        private void LoginSuccess(BaseEvent e)
-        {
-            if (NetworkAPI.GetCurrentZone() != "BasicExamples")
-                return;
-            Debug.Log("Logged in successfully");
-            SceneLoader.LoadScene("Main Menu");
-        }
+                BaseEvent logoutResult = await NetworkAPI.SendRequest(
+                    new LogoutRequest(),
+                    SFSEvent.LOGOUT
+                );
 
-        private void LoginError(BaseEvent e)
-        {
-            //Re-Enter guest zone
-            Debug.Log((string)e.Params["errorMessage"]);
-            NetworkAPI.SendRequest(new LoginRequest("", "", "SignUp"), new());
+                BaseEvent loginResult = await NetworkAPI.SendRequest(
+                    new LoginRequest(info.Username, info.Password, "BasicExamples"),
+                    SFSEvent.LOGIN
+                );
+                SceneLoader.LoadScene("Main Menu");
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Unable to complete the login LoginSequence");
+                Debug.Log(e);
+                await NetworkAPI.SendRequest(new LoginRequest("", "", "SignUp"), SFSEvent.LOGIN);
+            }
         }
     }
 }

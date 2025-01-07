@@ -1,10 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Model;
 using Network;
 using Sfs2X.Core;
-using UnityEngine;
-using Model;
 using Sfs2X.Entities;
-using System.Collections.Generic;
 using Sfs2X.Requests;
+using UnityEngine;
 
 namespace Application
 {
@@ -26,18 +28,40 @@ namespace Application
 
             private void Start()
             {
-                NetworkAPI.SubscribeToEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
-                NetworkAPI.SubscribeToEvent(new NetworkEventSubscription(SFSEvent.USER_VARIABLES_UPDATE, UserVariableUpdated));
+                NetworkAPI.SubscribeToEvent(
+                    new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame)
+                );
+                NetworkAPI.SubscribeToEvent(
+                    new NetworkEventSubscription(
+                        SFSEvent.USER_VARIABLES_UPDATE,
+                        UserVariableUpdated
+                    )
+                );
                 User myself = NetworkAPI.GetMyself();
                 Room currentRoom = NetworkAPI.GetCurrentRoom();
                 List<User> userList = currentRoom.PlayerList;
-                bool isPlayersTurn = currentRoom.GetVariable("startingUser").GetIntValue() == myself.Id;
-                _matchUI.InitializeUI(myself.Name, userList[0].Id == myself.Id ? userList[1].Name : userList[0].Name, PlayButtonClicked, ReturnToMainMenu, isPlayersTurn);
+                bool isPlayersTurn =
+                    currentRoom.GetVariable("startingUser").GetIntValue() == myself.Id;
+                _matchUI.InitializeUI(
+                    myself.Name,
+                    userList[0].Id == myself.Id ? userList[1].Name : userList[0].Name,
+                    PlayButtonClicked,
+                    ReturnToMainMenu,
+                    isPlayersTurn
+                );
             }
+
             private void OnDestroy()
             {
-                NetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
-                NetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.USER_VARIABLES_UPDATE, UserVariableUpdated));
+                NetworkAPI.UnSubscribeFromEvent(
+                    new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame)
+                );
+                NetworkAPI.UnSubscribeFromEvent(
+                    new NetworkEventSubscription(
+                        SFSEvent.USER_VARIABLES_UPDATE,
+                        UserVariableUpdated
+                    )
+                );
             }
 
             private void UserLeftGame(BaseEvent e)
@@ -47,14 +71,24 @@ namespace Application
                     return;
                 SceneLoader.LoadScene("Main Menu");
             }
-            private void PlayButtonClicked()
+
+            private async void PlayButtonClicked()
             {
                 int diceRoll = _dice.RollDice();
                 _playerVariables.DiceNumber = diceRoll;
                 _playerVariables.CurrentScore += diceRoll;
-                NetworkAPI.SendRequest(new SetUserVariablesRequest(_playerVariables.ToSFSUserVariable()), new List<NetworkEventSubscription>());
+                await SetUserVariable(_playerVariables);
                 _matchUI.UpdateUI(_playerVariables, _opponentVariables, false);
             }
+
+            private async Task SetUserVariable(UserMatchVariables userVariable)
+            {
+                BaseEvent result = await NetworkAPI.SendRequest(
+                    new SetUserVariablesRequest(_playerVariables.ToSFSUserVariable()),
+                    SFSEvent.USER_VARIABLES_UPDATE
+                );
+            }
+
             private void UserVariableUpdated(BaseEvent e)
             {
                 var user = (User)e.Params["user"];
@@ -63,13 +97,22 @@ namespace Application
 
                 _opponentVariables.FromSFSUserVariable(user.GetVariables());
                 _matchUI.UpdateUI(_playerVariables, _opponentVariables, true);
-
             }
-            private void ReturnToMainMenu()
+
+            private async void ReturnToMainMenu()
             {
-                NetworkAPI.SendRequest(new LeaveRoomRequest(),new());
+                try
+                {
+                    BaseEvent result = await NetworkAPI.SendRequest(
+                        new LeaveRoomRequest(),
+                        SFSEvent.USER_EXIT_ROOM
+                    );
+                }
+                catch (Exception e)
+                {
+                    Debug.Log(e);
+                }
             }
         }
-
     }
 }

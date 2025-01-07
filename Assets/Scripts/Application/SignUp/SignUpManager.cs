@@ -1,23 +1,22 @@
+using System.Threading.Tasks;
 using Model;
 using Network;
 using Sfs2X.Core;
 using Sfs2X.Entities.Data;
 using Sfs2X.Requests;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Application
 {
     public class SignUpManager : MonoBehaviour
     {
-        public void SendRequest(UserInfo info)
+        public async Task SendRequest(UserInfo info)
         {
-            NetworkAPI.SendRequest(new ExtensionRequest("signUp", info.ToSFSO()), new List<NetworkEventSubscription>(){ new NetworkEventSubscription(SFSEvent.EXTENSION_RESPONSE,SignUpEvent)});
-        }
-        private void SignUpEvent(BaseEvent e)
-        {
-            SFSObject param = (SFSObject)e.Params["params"];
+            BaseEvent result = await NetworkAPI.SendRequest(
+                new ExtensionRequest("signUp", info.ToSFSO()),
+                SFSEvent.EXTENSION_RESPONSE
+            );
+            SFSObject param = (SFSObject)result.Params["params"];
             if (param.GetBool("success"))
             {
                 SceneLoader.LoadScene("Login");
@@ -26,7 +25,5 @@ namespace Application
 
             Debug.Log(param.GetUtfString("errorMessage"));
         }
-
     }
-
 }

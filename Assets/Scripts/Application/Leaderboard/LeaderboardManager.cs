@@ -1,9 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Model;
 using Network;
 using Sfs2X.Core;
 using Sfs2X.Entities.Data;
 using Sfs2X.Requests;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Application
@@ -14,16 +16,28 @@ namespace Application
         {
             private LeaderboardUI _leaderboardUI;
 
-            private void Start()
+            private async Task Start()
             {
                 _leaderboardUI = GetComponent<LeaderboardUI>();
-                SendLeaderboardRequest();
+                await SendLeaderboardRequest();
             }
 
-            public void SendLeaderboardRequest()
+            public async Task SendLeaderboardRequest()
             {
-                NetworkAPI.SendRequest(new ExtensionRequest("getLeaderboard", SFSObject.NewInstance()), new List<NetworkEventSubscription> { new NetworkEventSubscription(SFSEvent.EXTENSION_RESPONSE, LeaderBoardLoaded) });
+                try
+                {
+                    BaseEvent result = await NetworkAPI.SendRequest(
+                        new ExtensionRequest("getLeaderboard", SFSObject.NewInstance()),
+                        SFSEvent.EXTENSION_RESPONSE
+                    );
+                    LeaderBoardLoaded(result);
+                }
+                catch (Exception e)
+                {
+                    Debug.Log(e);
+                }
             }
+
             private void LeaderBoardLoaded(BaseEvent e)
             {
                 SFSObject param = (SFSObject)e.Params["params"];
@@ -32,13 +46,14 @@ namespace Application
                 foreach (var user in userArray)
                 {
                     SFSObject userObject = (SFSObject)user;
-                    var userInfo = new PublicUserInfo(userObject.GetUtfString("username"), userObject.GetInt("xp"));
+                    var userInfo = new PublicUserInfo(
+                        userObject.GetUtfString("username"),
+                        userObject.GetInt("xp")
+                    );
                     userInfoList.Add(userInfo);
                 }
                 _leaderboardUI.LoadLeaderBoard(userInfoList);
             }
-
         }
-
     }
 }

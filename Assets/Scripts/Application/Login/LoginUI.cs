@@ -1,7 +1,6 @@
 using Model;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Application
@@ -17,10 +16,10 @@ namespace Application
             _loginButton.onClick.AddListener(LoginButtonClicked);
         }
 
-        private void LoginButtonClicked()
+        private async void LoginButtonClicked()
         {
             UserInfo loginInfo = new UserInfo() { Username = _usernameInput.text, Password = _paswordInput.text };
-            GetComponent<LoginManager>().LoginSequence(loginInfo);
+            await GetComponent<LoginManager>().LoginSequence(loginInfo);
         }
     }
 

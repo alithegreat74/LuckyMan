@@ -1,5 +1,5 @@
-using Sfs2X.Core;
 using System;
+using Sfs2X.Core;
 
 namespace Model
 {
@@ -7,11 +7,11 @@ namespace Model
     {
         public string EventName;
         public EventListenerDelegate Action;
+
         public NetworkEventSubscription(string eventName, EventListenerDelegate action)
         {
             EventName = eventName;
             Action = action;
         }
     }
-
 }
