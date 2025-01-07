@@ -14,22 +14,16 @@ namespace Application
         {
             try
             {
-                BaseEvent logoutResult = await NetworkAPI.SendRequest(
-                    new LogoutRequest(),
-                    SFSEvent.LOGOUT
-                );
+                BaseEvent logoutResult = await SmartFoxNetworkAPI.SendRequest(new LogoutRequest(), SFSEvent.LOGOUT);
 
-                BaseEvent loginResult = await NetworkAPI.SendRequest(
-                    new LoginRequest(info.Username, info.Password, "BasicExamples"),
-                    SFSEvent.LOGIN
-                );
+                BaseEvent loginResult = await SmartFoxNetworkAPI.SendRequest(new LoginRequest(info.Username, info.Password, "BasicExamples"), SFSEvent.LOGIN);
                 SceneLoader.LoadScene("Main Menu");
             }
             catch (Exception e)
             {
                 Debug.Log("Unable to complete the login LoginSequence");
                 Debug.Log(e);
-                await NetworkAPI.SendRequest(new LoginRequest("", "", "SignUp"), SFSEvent.LOGIN);
+                await SmartFoxNetworkAPI.SendRequest(new LoginRequest("", "", "SignUp"), SFSEvent.LOGIN);
             }
         }
     }

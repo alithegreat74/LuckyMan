@@ -26,7 +26,7 @@ namespace Application
             {
                 try
                 {
-                    BaseEvent result = await NetworkAPI.SendRequest(
+                    BaseEvent result = await SmartFoxNetworkAPI.SendRequest(
                         new ExtensionRequest("getLeaderboard", SFSObject.NewInstance()),
                         SFSEvent.EXTENSION_RESPONSE
                     );

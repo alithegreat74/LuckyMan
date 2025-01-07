@@ -1,5 +1,4 @@
 using Sfs2X.Entities.Data;
-using Sfs2X.Util;
 namespace Model
 {
     public struct UserInfo

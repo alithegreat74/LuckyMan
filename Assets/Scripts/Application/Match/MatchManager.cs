@@ -28,10 +28,10 @@ namespace Application
 
             private void Start()
             {
-                NetworkAPI.SubscribeToEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
-                NetworkAPI.SubscribeToEvent(new NetworkEventSubscription(SFSEvent.USER_VARIABLES_UPDATE, UserVariableUpdated));
-                User myself = NetworkAPI.GetMyself();
-                Room currentRoom = NetworkAPI.GetCurrentRoom();
+                SmartFoxNetworkAPI.SubscribeToEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
+                SmartFoxNetworkAPI.SubscribeToEvent(new NetworkEventSubscription(SFSEvent.USER_VARIABLES_UPDATE, UserVariableUpdated));
+                User myself = SmartFoxNetworkAPI.GetMyself();
+                Room currentRoom = SmartFoxNetworkAPI.GetCurrentRoom();
                 List<User> userList = currentRoom.PlayerList;
                 bool isPlayersTurn = currentRoom.GetVariable("startingUser").GetIntValue() == myself.Id;
                 _matchUI.InitializeUI(myself.Name, userList[0].Id == myself.Id ? userList[1].Name : userList[0].Name, PlayButtonClicked, ReturnToMainMenu, isPlayersTurn);
@@ -39,8 +39,8 @@ namespace Application
 
             private void OnDestroy()
             {
-                NetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
-                NetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.USER_VARIABLES_UPDATE, UserVariableUpdated));
+                SmartFoxNetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
+                SmartFoxNetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.USER_VARIABLES_UPDATE, UserVariableUpdated));
             }
 
             private async void UserLeftGame(BaseEvent e)
@@ -49,10 +49,10 @@ namespace Application
                 if (!room.IsGame)
                     return;
 
-                NetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
+                SmartFoxNetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
                 try
                 {
-                    await NetworkAPI.SendRequest(new LeaveRoomRequest(), SFSEvent.USER_EXIT_ROOM);
+                    await SmartFoxNetworkAPI.SendRequest(new LeaveRoomRequest(), SFSEvent.USER_EXIT_ROOM);
                     SceneLoader.LoadScene("Main Menu");
                 }
                 catch (Exception exception)
@@ -72,13 +72,13 @@ namespace Application
 
             private async Task SetUserVariable(UserMatchVariables userVariable)
             {
-                BaseEvent result = await NetworkAPI.SendRequest(new SetUserVariablesRequest(_playerVariables.ToSFSUserVariable()), SFSEvent.USER_VARIABLES_UPDATE);
+                BaseEvent result = await SmartFoxNetworkAPI.SendRequest(new SetUserVariablesRequest(_playerVariables.ToSFSUserVariable()), SFSEvent.USER_VARIABLES_UPDATE);
             }
 
             private void UserVariableUpdated(BaseEvent e)
             {
                 var user = (User)e.Params["user"];
-                if (user.Id == NetworkAPI.GetMyself().Id)
+                if (user.Id == SmartFoxNetworkAPI.GetMyself().Id)
                     return;
 
                 _opponentVariables.FromSFSUserVariable(user.GetVariables());
@@ -89,7 +89,7 @@ namespace Application
             {
                 try
                 {
-                    BaseEvent result = await NetworkAPI.SendRequest(new LeaveRoomRequest(), SFSEvent.USER_EXIT_ROOM);
+                    BaseEvent result = await SmartFoxNetworkAPI.SendRequest(new LeaveRoomRequest(), SFSEvent.USER_EXIT_ROOM);
                 }
                 catch (Exception e)
                 {

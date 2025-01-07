@@ -12,10 +12,8 @@ namespace Application
     {
         public async Task SendRequest(UserInfo info)
         {
-            BaseEvent result = await NetworkAPI.SendRequest(
-                new ExtensionRequest("signUp", info.ToSFSO()),
-                SFSEvent.EXTENSION_RESPONSE
-            );
+            BaseEvent result = await SmartFoxNetworkAPI.SendRequest(
+                    new ExtensionRequest("signUp", info.ToSFSO()), SFSEvent.EXTENSION_RESPONSE);
             SFSObject param = (SFSObject)result.Params["params"];
             if (param.GetBool("success"))
             {

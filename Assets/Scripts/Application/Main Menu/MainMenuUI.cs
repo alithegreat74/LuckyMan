@@ -12,7 +12,7 @@ namespace Application
             [SerializeField] private TextMeshProUGUI _username;
             private void Start()
             {
-                _username.text = NetworkAPI.GetMyself().Name;
+                _username.text = SmartFoxNetworkAPI.GetMyself().Name;
             }
         }
 

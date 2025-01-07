@@ -15,7 +15,7 @@ namespace Application
         {
             private async Task Start()
             {
-                NetworkAPI.SubscribeToEvent(
+                SmartFoxNetworkAPI.SubscribeToEvent(
                     new NetworkEventSubscription(SFSEvent.ROOM_JOIN, UserJoinedRoom)
                 );
                 await JoinLobbyRequest();
@@ -23,7 +23,7 @@ namespace Application
 
             private void OnDestroy()
             {
-                NetworkAPI.UnSubscribeFromEvent(
+                SmartFoxNetworkAPI.UnSubscribeFromEvent(
                     new NetworkEventSubscription(SFSEvent.ROOM_JOIN, UserJoinedRoom)
                 );
             }
@@ -32,7 +32,7 @@ namespace Application
             {
                 try
                 {
-                    await NetworkAPI.SendRequest(new JoinRoomRequest(0), SFSEvent.ROOM_JOIN);
+                    await SmartFoxNetworkAPI.SendRequest(new JoinRoomRequest(0), SFSEvent.ROOM_JOIN);
                 }
                 catch (Exception e)
                 {

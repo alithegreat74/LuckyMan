@@ -7,26 +7,20 @@ using UnityEngine;
 
 namespace Network
 {
-    [RequireComponent(typeof(NetworkManager))]
-    public class NetworkAPI : MonoBehaviour
+    [RequireComponent(typeof(SmartFoxNetworkManager))]
+    public class SmartFoxNetworkAPI : MonoBehaviour
     {
-        private static NetworkManager _networkManager;
+        private static SmartFoxNetworkManager _networkManager;
 
         private void Awake()
         {
-            _networkManager = GetComponent<NetworkManager>();
+            _networkManager = GetComponent<SmartFoxNetworkManager>();
         }
 
         public static async Task<BaseEvent> SendRequest(IRequest request, string sfsEvent)
         {
             return await _networkManager.SendRequest(request, sfsEvent);
         }
-
-        /*public static void SendRequest(
-            IRequest request,
-            List<NetworkEventSubscription> subscriptions
-        )
-        { }*/
 
         public static void SubscribeToEvent(NetworkEventSubscription subscription) =>
             _networkManager.SubscribeToEvent(subscription);
