@@ -10,6 +10,7 @@ namespace Application
             //TODO: Save User's info if you had the time
             SceneLoader.LoadScene(_initialScene);
         }
+
     }
 
 }

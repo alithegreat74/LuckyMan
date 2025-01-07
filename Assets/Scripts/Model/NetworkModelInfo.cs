@@ -12,6 +12,7 @@ namespace Model
         public string ServerIp = "127.0.0.1";
         public int ServerPort = 9933;
         public string ZoneName = "SignUp";
-        public int Timeout = 300;
+        public int ConnectionTimeout = 500;
+        public int RequestTimeout = 300;
     }
 }

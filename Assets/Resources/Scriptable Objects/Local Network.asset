@@ -15,3 +15,5 @@ MonoBehaviour:
   ServerIp: 127.0.0.1
   ServerPort: 9933
   ZoneName: SignUp
+  ConnectionTimeout: 1000
+  RequestTimeout: 300
