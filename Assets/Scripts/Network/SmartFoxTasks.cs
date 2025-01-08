@@ -3,6 +3,7 @@ using Sfs2X.Core;
 using System.Threading.Tasks;
 using Sfs2X;
 using Sfs2X.Requests;
+using Model;
 
 namespace Network
 {
@@ -34,16 +35,16 @@ namespace Network
             //Wait for one task either the timeout or the response be over
             return await Task.WhenAny(taskCompletionSource.Task, timeoutTask) == taskCompletionSource.Task ?
                 await taskCompletionSource.Task :
-                throw new TimeoutException("Request Time out");
+                throw new TimeoutException("Connection Time out");
         }
-        public async Task<BaseEvent> SendRequest
+        public async Task<NetworkResult> SendRequest
             (IRequest request, string sfsEvent, int timeout)
         {
-            TaskCompletionSource<BaseEvent> taskCompletionSource = new TaskCompletionSource<BaseEvent>();
+            TaskCompletionSource<NetworkResult> taskCompletionSource = new TaskCompletionSource<NetworkResult>();
             EventListenerDelegate lambda = null;
             lambda = (evt) =>
             {
-                taskCompletionSource.TrySetResult(evt);
+                taskCompletionSource.TrySetResult(new NetworkResult(evt));
                 _smartFox.RemoveEventListener(sfsEvent, lambda);
             };
             _smartFox.AddEventListener(sfsEvent, lambda);

@@ -17,7 +17,7 @@ namespace Network
             _networkManager = GetComponent<SmartFoxNetworkManager>();
         }
 
-        public static async Task<BaseEvent> SendRequest(IRequest request, string sfsEvent)
+        public static async Task<NetworkResult> SendRequest(IRequest request, string sfsEvent)
         {
             return await _networkManager.SendRequest(request, sfsEvent);
         }

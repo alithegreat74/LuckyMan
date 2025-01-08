@@ -25,13 +25,14 @@ public class LoginHandler extends BaseServerEventHandler {
             String username = getUsername(isfsEvent);
             String cryptedPassword = getCryptedPassword(isfsEvent);
             ISession session = getSession(isfsEvent);
-            ResultSet resultSet = getUserFromDatabase(username);
+            Connection connection = getParentExtension().getParentZone().getDBManager().getConnection();
+            ResultSet resultSet = getUserFromDatabase(connection, username);
             checkResult(resultSet);
             String password = getUserPassword(resultSet);
             checkInputPassword(session, cryptedPassword,password);
             int id = resultSet.getInt("id");
             session.setProperty("dbID", id);
-
+            connection.close();
         }
         catch (Exception e) {
             trace(e.getMessage());
@@ -48,11 +49,8 @@ public class LoginHandler extends BaseServerEventHandler {
     private ISession getSession(ISFSEvent isfsEvent) {
         return (ISession) isfsEvent.getParameter(SFSEventParam.SESSION);
     }
-    private ResultSet getUserFromDatabase(String username) throws SQLException
+    private ResultSet getUserFromDatabase(Connection connection,String username) throws SQLException
     {
-        IDBManager dbManager = getParentExtension().getParentZone().getDBManager();
-        Connection connection = null;
-        connection = dbManager.getConnection();
         PreparedStatement statement =
                 connection.prepareStatement("Select id, password from users where username=?");
         statement.setString(1, username);

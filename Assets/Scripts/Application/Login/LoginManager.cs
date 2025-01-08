@@ -14,8 +14,9 @@ namespace Application
         {
             try
             {
-                BaseEvent logoutResult = await SmartFoxNetworkAPI.SendRequest(new LogoutRequest(), SFSEvent.LOGOUT);
-                BaseEvent loginResult = await SmartFoxNetworkAPI.SendRequest(new LoginRequest(info.Username, info.Password, "BasicExamples"), SFSEvent.LOGIN);
+                //Since there wont be a login result (there's a seperate response for it) we just wait for it to get timed out
+                NetworkResult logoutResult = await SmartFoxNetworkAPI.SendRequest(new LogoutRequest(), SFSEvent.LOGOUT);
+                NetworkResult loginResult = await SmartFoxNetworkAPI.SendRequest(new LoginRequest(info.Username, info.Password, "BasicExamples"), SFSEvent.LOGIN);
                 SceneLoader.LoadScene("Main Menu");
             }
             catch (Exception e)

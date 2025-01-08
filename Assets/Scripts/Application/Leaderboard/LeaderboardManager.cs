@@ -16,7 +16,7 @@ namespace Application
         {
             private LeaderboardUI _leaderboardUI;
 
-            private async Task Start()
+            private async void Start()
             {
                 _leaderboardUI = GetComponent<LeaderboardUI>();
                 await SendLeaderboardRequest();
@@ -26,7 +26,7 @@ namespace Application
             {
                 try
                 {
-                    BaseEvent result = await SmartFoxNetworkAPI.SendRequest(
+                    NetworkResult result = await SmartFoxNetworkAPI.SendRequest(
                         new ExtensionRequest("getLeaderboard", SFSObject.NewInstance()),
                         SFSEvent.EXTENSION_RESPONSE
                     );
@@ -38,10 +38,11 @@ namespace Application
                 }
             }
 
-            private void LeaderBoardLoaded(BaseEvent e)
+            private void LeaderBoardLoaded(NetworkResult result)
             {
-                SFSObject param = (SFSObject)e.Params["params"];
-                ISFSArray userArray = param.GetSFSArray("users");
+                if (!result.Success())
+                    return;
+                ISFSArray userArray = result.GetArrayResult("users");
                 var userInfoList = new List<PublicUserInfo>();
                 foreach (var user in userArray)
                 {

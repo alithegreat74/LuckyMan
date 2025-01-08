@@ -40,7 +40,7 @@ namespace Network
             await InitializeSession();
         }
         
-        public async Task<BaseEvent> SendRequest(IRequest request, string sfsEvent)
+        public async Task<NetworkResult> SendRequest(IRequest request, string sfsEvent)
         {
             
             return await _smartFoxTasks.SendRequest

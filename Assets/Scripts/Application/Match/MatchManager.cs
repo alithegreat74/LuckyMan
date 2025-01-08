@@ -7,6 +7,7 @@ using Sfs2X.Entities;
 using Sfs2X.Entities.Data;
 using Sfs2X.Requests;
 using UnityEngine;
+using UnityEngine.Device;
 
 namespace Application
 {
@@ -64,13 +65,12 @@ namespace Application
             }
             private async void PlayButtonClicked()
             {
-                BaseEvent result = 
+                NetworkResult result = 
                     await SmartFoxNetworkAPI.SendRequest(new ExtensionRequest("rollDice", new SFSObject(), SmartFoxNetworkAPI.GetCurrentRoom()),SFSEvent.EXTENSION_RESPONSE);
 
-                SFSObject resultParams = (SFSObject)result.Params["params"];
-                if(!resultParams.GetBool("success"))
+                if(!result.Success())
                     return;
-                _dice.RollDice(resultParams.GetInt("diceNumber"));
+                _dice.RollDice(result.GetIntResult("diceNumber"));
             }
             private void UserVariableUpdated(BaseEvent e)
             {
@@ -93,12 +93,13 @@ namespace Application
             {
                 try
                 {
-                    BaseEvent result = await SmartFoxNetworkAPI.SendRequest(new LeaveRoomRequest(), SFSEvent.USER_EXIT_ROOM);
+                    NetworkResult result = await SmartFoxNetworkAPI.SendRequest(new LeaveRoomRequest(), SFSEvent.USER_EXIT_ROOM);
                     SceneLoader.LoadScene("Main Menu");
                 }
                 catch (Exception e)
                 {
                     Debug.Log(e);
+                    UnityEngine.Application.Quit();
                 }
             }
         }

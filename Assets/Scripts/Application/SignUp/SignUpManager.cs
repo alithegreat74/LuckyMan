@@ -12,16 +12,14 @@ namespace Application
     {
         public async Task SendRequest(UserInfo info)
         {
-            BaseEvent result = await SmartFoxNetworkAPI.SendRequest(
+            NetworkResult result = await SmartFoxNetworkAPI.SendRequest(
                     new ExtensionRequest("signUp", info.ToSFSO()), SFSEvent.EXTENSION_RESPONSE);
-            SFSObject param = (SFSObject)result.Params["params"];
-            if (param.GetBool("success"))
+            if (result.Success())
             {
                 SceneLoader.LoadScene("Login");
                 return;
             }
-
-            Debug.Log(param.GetUtfString("errorMessage"));
+            Debug.Log(result.ErrorMessage());
         }
     }
 }
