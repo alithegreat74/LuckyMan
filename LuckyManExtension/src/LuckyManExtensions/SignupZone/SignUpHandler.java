@@ -5,41 +5,47 @@ import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.extensions.BaseClientRequestHandler;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 
 public class SignUpHandler extends BaseClientRequestHandler {
 
     @Override
     public void handleClientRequest(User user, ISFSObject isfsObject) {
-        ISFSObject response = new SFSObject();
-        String username = "";
-        String password = "";
-        try{
-            username = isfsObject.getUtfString("username");
-            password = isfsObject.getUtfString("password");
-        }
-        catch(Exception e){
-            trace("invalid input error");
-            response.putBool("success",false);
-            response.putUtfString("errorMessage","invalid input of username/password");
-            send("signUp",response,user);
-            return;
-        }
-        String databaseInsert = "Insert Into users Values(NULL, ?, ?, 0);";
+        ISFSObject response = SFSObject.newInstance();
         IDBManager dbManager = getParentExtension().getParentZone().getDBManager();
-
+        Connection connection = null;
         try{
-            dbManager.executeInsert(databaseInsert,new Object[]{username,password});
-            response.putBool("success",true);
-            response.putUtfString("message","User created successfully");
-            send("signUp",response,user);
-
+            String username = isfsObject.getUtfString("username");
+            String password = isfsObject.getUtfString("password");
+            connection = dbManager.getConnection();
+            PreparedStatement statement =
+                    connection.prepareStatement("Insert Into users Values(NULL, ?, ?, 0);");
+            statement.setString(1, username);
+            statement.setString(2, password);
+            statement.executeUpdate();
+            response.putBool("success", true);
+        }
+        catch(SQLException e){
+            trace("Database Error" + e.getMessage());
+            response.putBool("success", false);
+            response.putUtfString("error", e.getMessage());
         }
         catch(Exception e){
-            trace("Database Error",e);
-            response.putBool("success",false);
-            response.putUtfString("errorMessage","failed to create user");
-            send("signUp",response,user);
+            trace(e.getMessage());
+            response.putUtfString("error", e.getMessage());
         }
-
+        finally
+        {
+            send("signUp",response,user);
+            try {
+                assert connection != null;
+                connection.close();
+            } catch (SQLException e) {
+                trace("unable to close connection" + e.getMessage());
+            }
+        }
     }
 }
