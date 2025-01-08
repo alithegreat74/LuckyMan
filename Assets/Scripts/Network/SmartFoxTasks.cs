@@ -9,12 +9,11 @@ namespace Network
     public class SmartFoxTasks
     {
         private static SmartFox _smartFox;
-        public static void Init(SmartFox smartFox)
+        public SmartFoxTasks(SmartFox smartfox)
         {
-            _smartFox = smartFox;
+            _smartFox = smartfox;
         }
-
-        public static async Task<bool> ConnectToServer
+        public async Task<bool> ConnectToServer
             (string serverIp, int serverPort, int timeout)
         {
             TaskCompletionSource<bool> taskCompletionSource = new TaskCompletionSource<bool>();
@@ -37,7 +36,7 @@ namespace Network
                 await taskCompletionSource.Task :
                 throw new TimeoutException("Request Time out");
         }
-        public static async Task<BaseEvent> SendRequest
+        public async Task<BaseEvent> SendRequest
             (IRequest request, string sfsEvent, int timeout)
         {
             TaskCompletionSource<BaseEvent> taskCompletionSource = new TaskCompletionSource<BaseEvent>();

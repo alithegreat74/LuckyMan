@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Model;
 using Network;
 using Sfs2X.Core;
 using Sfs2X.Entities;
+using Sfs2X.Entities.Data;
 using Sfs2X.Requests;
 using UnityEngine;
 
@@ -28,6 +28,7 @@ namespace Application
 
             private void Start()
             {
+                //TODO: Handle events in a different class?
                 SmartFoxNetworkAPI.SubscribeToEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
                 SmartFoxNetworkAPI.SubscribeToEvent(new NetworkEventSubscription(SFSEvent.USER_VARIABLES_UPDATE, UserVariableUpdated));
                 User myself = SmartFoxNetworkAPI.GetMyself();
@@ -60,29 +61,31 @@ namespace Application
                     Debug.Log(exception);
                 }
             }
-
             private async void PlayButtonClicked()
             {
-                int diceRoll = _dice.RollDice();
-                _playerVariables.DiceNumber = diceRoll;
-                _playerVariables.CurrentScore += diceRoll;
-                await SetUserVariable(_playerVariables);
-                _matchUI.UpdateUI(_playerVariables, _opponentVariables, false);
-            }
+                BaseEvent result = 
+                    await SmartFoxNetworkAPI.SendRequest(new ExtensionRequest("rollDice", new SFSObject(), SmartFoxNetworkAPI.GetCurrentRoom()),SFSEvent.EXTENSION_RESPONSE);
 
-            private async Task SetUserVariable(UserMatchVariables userVariable)
-            {
-                BaseEvent result = await SmartFoxNetworkAPI.SendRequest(new SetUserVariablesRequest(_playerVariables.ToSFSUserVariable()), SFSEvent.USER_VARIABLES_UPDATE);
+                SFSObject resultParams = (SFSObject)result.Params["params"];
+                if(!resultParams.GetBool("success"))
+                    return;
+                _dice.RollDice(resultParams.GetInt("diceNumber"));
             }
-
             private void UserVariableUpdated(BaseEvent e)
             {
                 var user = (User)e.Params["user"];
+                bool playersTurn = false;
                 if (user.Id == SmartFoxNetworkAPI.GetMyself().Id)
-                    return;
-
-                _opponentVariables.FromSFSUserVariable(user.GetVariables());
-                _matchUI.UpdateUI(_playerVariables, _opponentVariables, true);
+                {
+                    _playerVariables.FromSFSUserVariable(user.GetVariables());
+                    playersTurn = false;
+                }
+                else
+                {
+                    _opponentVariables.FromSFSUserVariable(user.GetVariables());
+                    playersTurn = true;
+                }
+                _matchUI.UpdateUI(_playerVariables, _opponentVariables, playersTurn);
             }
 
             private async void ReturnToMainMenu()

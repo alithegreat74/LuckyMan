@@ -14,6 +14,7 @@ namespace Network
     {
         [SerializeField] private NetworkModelInfo _networkModel;
         private SmartFox _smartFox;
+        private SmartFoxTasks _smartFoxTasks;
         private void Awake()
         {
             _smartFox = new SmartFox();
@@ -35,13 +36,27 @@ namespace Network
         {
             SubscribeToEvent(new NetworkEventSubscription(SFSEvent.CONNECTION_LOST, ConnectionLost));
             //Initialize the smartfox tasks class by giving it a reference of the smartfox instance
-            SmartFoxTasks.Init(_smartFox);
+            _smartFoxTasks = new SmartFoxTasks(_smartFox);
             await InitializeSession();
         }
+        
         public async Task<BaseEvent> SendRequest(IRequest request, string sfsEvent)
         {
-            return await SmartFoxTasks.SendRequest
+            
+            return await _smartFoxTasks.SendRequest
                 (request, sfsEvent, _networkModel.RequestTimeout);
+        }
+        private async Task InitializeSession()
+        {
+            try
+            {
+                await _smartFoxTasks.ConnectToServer(_networkModel.ServerIp, _networkModel.ServerPort, _networkModel.ConnectionTimeout);
+                await SendRequest(new LoginRequest("", "", _networkModel.ZoneName), SFSEvent.LOGIN);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         }
         #region Event Handling
         public void SubscribeToEvent(NetworkEventSubscription subscription) => _smartFox.AddEventListener(subscription.EventName, subscription.Action);
@@ -52,23 +67,13 @@ namespace Network
         public Room GetCurrentRoom() => _smartFox.LastJoinedRoom;
         public string GetCurrentZone() => _smartFox.CurrentZone;
         #endregion
-        private async Task InitializeSession()
-        {
-            try
-            {
-                await SmartFoxTasks.ConnectToServer(_networkModel.ServerIp, _networkModel.ServerPort, _networkModel.ConnectionTimeout);
-                await SendRequest(new LoginRequest("", "", _networkModel.ZoneName), SFSEvent.LOGIN);
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-            }
-        }
+        #region Events
         private void ConnectionLost(BaseEvent e)
         {
             Debug.Log("Connection lost");
             _smartFox.RemoveAllEventListeners();
             SceneManager.LoadScene("Father");
         }
+        #endregion
     }
 }

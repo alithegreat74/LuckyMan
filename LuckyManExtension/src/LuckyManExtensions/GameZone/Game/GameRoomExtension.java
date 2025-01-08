@@ -8,9 +8,10 @@ import com.smartfoxserver.v2.extensions.SFSExtension;
 public class GameRoomExtension extends SFSExtension {
     @Override
     public void init() {
+        trace("Game Room Created");
+        addRequestHandler("rollDice", DiceRollHandler.class);
         addEventHandler(SFSEventType.USER_LEAVE_ROOM, UserLeftGame.class);
         addEventHandler(SFSEventType.USER_VARIABLES_UPDATE, UserVariableChanged.class);
-        addRequestHandler("diceRoll", DiceRollHandler.class);
     }
     @Override
     public void destroy() {

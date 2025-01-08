@@ -15,7 +15,6 @@ namespace Application
             try
             {
                 BaseEvent logoutResult = await SmartFoxNetworkAPI.SendRequest(new LogoutRequest(), SFSEvent.LOGOUT);
-
                 BaseEvent loginResult = await SmartFoxNetworkAPI.SendRequest(new LoginRequest(info.Username, info.Password, "BasicExamples"), SFSEvent.LOGIN);
                 SceneLoader.LoadScene("Main Menu");
             }
