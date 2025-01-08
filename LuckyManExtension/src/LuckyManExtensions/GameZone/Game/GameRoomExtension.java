@@ -1,8 +1,7 @@
-package LuckyManExtensions.RoomExtensions;
+package LuckyManExtensions.GameZone.Game;
 
-import LuckyManExtensions.EventListeners.UserLeftGame;
-import LuckyManExtensions.EventListeners.UserVariableChanged;
-import LuckyManExtensions.Handlers.DiceRollHandler;
+import LuckyManExtensions.GameZone.DiceRolling.UserVariableChanged;
+import LuckyManExtensions.GameZone.DiceRolling.DiceRollHandler;
 import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 

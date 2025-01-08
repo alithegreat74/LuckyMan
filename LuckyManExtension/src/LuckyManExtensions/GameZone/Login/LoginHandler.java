@@ -1,4 +1,4 @@
-package LuckyManExtensions.EventListeners;
+package LuckyManExtensions.GameZone.Login;
 import com.smartfoxserver.bitswarm.sessions.ISession;
 import com.smartfoxserver.v2.core.ISFSEvent;
 import com.smartfoxserver.v2.core.SFSEventParam;

@@ -43,16 +43,15 @@ namespace Network
             return await SmartFoxTasks.SendRequest
                 (request, sfsEvent, _networkModel.RequestTimeout);
         }
+        #region Event Handling
         public void SubscribeToEvent(NetworkEventSubscription subscription) => _smartFox.AddEventListener(subscription.EventName, subscription.Action);
         public void UnSubscribeToEvent(NetworkEventSubscription subscription) => _smartFox.RemoveEventListener(subscription.EventName, subscription.Action);
+        #endregion
+        #region Get Session Info
         public User GetMyself() => _smartFox.MySelf;
         public Room GetCurrentRoom() => _smartFox.LastJoinedRoom;
         public string GetCurrentZone() => _smartFox.CurrentZone;
-        private void ConnectionLost(BaseEvent e)
-        {
-            Debug.Log("Connection lost");
-            SceneManager.LoadScene("Father");
-        }
+        #endregion
         private async Task InitializeSession()
         {
             try
@@ -64,6 +63,12 @@ namespace Network
             {
                 Debug.Log(e);
             }
+        }
+        private void ConnectionLost(BaseEvent e)
+        {
+            Debug.Log("Connection lost");
+            _smartFox.RemoveAllEventListeners();
+            SceneManager.LoadScene("Father");
         }
     }
 }

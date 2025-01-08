@@ -1,5 +1,4 @@
-package LuckyManExtensions.EventListeners;
-import LuckyManExtensions.RoomExtensions.GameRoomExtension;
+package LuckyManExtensions.GameZone.Lobby;
 import com.smartfoxserver.v2.api.CreateRoomSettings;
 import com.smartfoxserver.v2.core.ISFSEvent;
 import com.smartfoxserver.v2.core.SFSEventParam;
@@ -29,7 +28,7 @@ public class UserJoinedLobby extends BaseServerEventHandler {
         cfg.setName("GameRoom_"+ UUID.randomUUID().toString().replace("-", "").substring(0, 10));
         cfg.setGame(true);
         cfg.setMaxUsers(2);
-        cfg.setExtension(new CreateRoomSettings.RoomExtensionSettings("LuckyMan","LuckyManExtensions.RoomExtensions.GameRoomExtension"));
+        cfg.setExtension(new CreateRoomSettings.RoomExtensionSettings("LuckyMan","LuckyManExtensions.GameZone.Game.GameRoomExtension"));
         RoomVariable startingUser = new SFSRoomVariable("startingUser", user.getId());
         cfg.setRoomVariables(List.of(startingUser));
         try

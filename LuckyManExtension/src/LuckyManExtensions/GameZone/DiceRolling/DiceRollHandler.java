@@ -1,11 +1,9 @@
-package LuckyManExtensions.Handlers;
+package LuckyManExtensions.GameZone.DiceRolling;
 
 import com.smartfoxserver.v2.entities.User;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.extensions.BaseClientRequestHandler;
-
 import java.util.List;
-
 public class DiceRollHandler extends BaseClientRequestHandler {
     @Override
     public void handleClientRequest(User user, ISFSObject isfsObject) {

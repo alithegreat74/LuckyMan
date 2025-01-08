@@ -1,6 +1,5 @@
-package LuckyManExtensions.RoomExtensions;
+package LuckyManExtensions.GameZone.Lobby;
 
-import LuckyManExtensions.EventListeners.UserJoinedLobby;
 import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 public class LobbyRoomExtension extends SFSExtension {

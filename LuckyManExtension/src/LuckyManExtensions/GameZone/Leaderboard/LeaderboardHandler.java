@@ -1,4 +1,4 @@
-package LuckyManExtensions.Handlers;
+package LuckyManExtensions.GameZone.Leaderboard;
 
 import com.smartfoxserver.v2.db.IDBManager;
 import com.smartfoxserver.v2.entities.User;

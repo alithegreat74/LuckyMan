@@ -1,5 +1,4 @@
-package LuckyManExtensions;
-import LuckyManExtensions.Handlers.SignUpHandler;
+package LuckyManExtensions.SignupZone;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 public class LuckyManSignUpExtension extends SFSExtension {
     @Override

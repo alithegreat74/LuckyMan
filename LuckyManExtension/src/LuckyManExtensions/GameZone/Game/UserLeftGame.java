@@ -1,4 +1,4 @@
-package LuckyManExtensions.EventListeners;
+package LuckyManExtensions.GameZone.Game;
 
 import com.smartfoxserver.v2.core.ISFSEvent;
 import com.smartfoxserver.v2.entities.Room;

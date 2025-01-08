@@ -1,6 +1,6 @@
-package LuckyManExtensions;
-import LuckyManExtensions.Handlers.LeaderboardHandler;
-import LuckyManExtensions.EventListeners.LoginHandler;
+package LuckyManExtensions.GameZone;
+import LuckyManExtensions.GameZone.Leaderboard.LeaderboardHandler;
+import LuckyManExtensions.GameZone.Login.LoginHandler;
 import com.smartfoxserver.v2.core.SFSEventType;
 import com.smartfoxserver.v2.extensions.SFSExtension;
 
