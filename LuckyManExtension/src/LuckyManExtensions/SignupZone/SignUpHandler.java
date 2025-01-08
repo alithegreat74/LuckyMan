@@ -7,6 +7,7 @@ import com.smartfoxserver.v2.extensions.BaseClientRequestHandler;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
@@ -15,17 +16,10 @@ public class SignUpHandler extends BaseClientRequestHandler {
     @Override
     public void handleClientRequest(User user, ISFSObject isfsObject) {
         ISFSObject response = SFSObject.newInstance();
-        IDBManager dbManager = getParentExtension().getParentZone().getDBManager();
-        Connection connection = null;
         try{
             String username = isfsObject.getUtfString("username");
             String password = isfsObject.getUtfString("password");
-            connection = dbManager.getConnection();
-            PreparedStatement statement =
-                    connection.prepareStatement("Insert Into users Values(NULL, ?, ?, 0);");
-            statement.setString(1, username);
-            statement.setString(2, password);
-            statement.executeUpdate();
+            updateDatabase(username, password);
             response.putBool("success", true);
         }
         catch(SQLException e){
@@ -35,17 +29,20 @@ public class SignUpHandler extends BaseClientRequestHandler {
         }
         catch(Exception e){
             trace(e.getMessage());
+            response.putBool("success", false);
             response.putUtfString("error", e.getMessage());
         }
-        finally
-        {
-            send("signUp",response,user);
-            try {
-                assert connection != null;
-                connection.close();
-            } catch (SQLException e) {
-                trace("unable to close connection" + e.getMessage());
-            }
-        }
+        send("signUp",response,user);
+
+    }
+    private void updateDatabase(String username, String password) throws SQLException {
+        IDBManager dbManager = getParentExtension().getParentZone().getDBManager();
+        Connection connection = dbManager.getConnection();
+        PreparedStatement statement =
+                connection.prepareStatement("Insert Into users Values(NULL, ?, ?, 0);");
+        statement.setString(1, username);
+        statement.setString(2, password);
+        statement.executeUpdate();
+        connection.close();
     }
 }
