@@ -47,7 +47,8 @@ namespace Application
             private async void UserLeftGame(BaseEvent e)
             {
                 var room = (Room)e.Params["room"];
-                if (!room.IsGame)
+                var user = (User)e.Params["user"];
+                if (!room.IsGame && user.Id == SmartFoxNetworkAPI.GetMyself().Id)
                     return;
 
                 SmartFoxNetworkAPI.UnSubscribeFromEvent(new NetworkEventSubscription(SFSEvent.USER_EXIT_ROOM, UserLeftGame));
@@ -93,6 +94,7 @@ namespace Application
                 try
                 {
                     BaseEvent result = await SmartFoxNetworkAPI.SendRequest(new LeaveRoomRequest(), SFSEvent.USER_EXIT_ROOM);
+                    SceneLoader.LoadScene("Main Menu");
                 }
                 catch (Exception e)
                 {
