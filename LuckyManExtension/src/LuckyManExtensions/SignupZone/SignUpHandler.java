@@ -1,12 +1,11 @@
 package LuckyManExtensions.SignupZone;
+import LuckyManExtensions.utilities.ScopedDatabaseConnection;
 import com.smartfoxserver.v2.db.IDBManager;
 import com.smartfoxserver.v2.entities.User;
 import com.smartfoxserver.v2.entities.data.ISFSObject;
 import com.smartfoxserver.v2.entities.data.SFSObject;
 import com.smartfoxserver.v2.extensions.BaseClientRequestHandler;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 
@@ -36,12 +35,11 @@ public class SignUpHandler extends BaseClientRequestHandler {
     }
     private void updateDatabase(String username, String password) throws SQLException {
         IDBManager dbManager = getParentExtension().getParentZone().getDBManager();
-        Connection connection = dbManager.getConnection();
-        PreparedStatement statement =
-                connection.prepareStatement("Insert Into users Values(NULL, ?, ?, 0);");
-        statement.setString(1, username);
-        statement.setString(2, password);
-        statement.executeUpdate();
-        connection.close();
+        try(ScopedDatabaseConnection connection
+                = new ScopedDatabaseConnection(dbManager,"Insert Into users Values(NULL, ?, ?, 0);")) {
+            connection.setString(1, username);
+            connection.setString(2, password);
+            connection.executeUpdate();
+        }
     }
 }

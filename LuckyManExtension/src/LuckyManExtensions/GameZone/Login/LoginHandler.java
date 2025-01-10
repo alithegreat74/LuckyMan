@@ -1,18 +1,15 @@
 package LuckyManExtensions.GameZone.Login;
-import com.smartfoxserver.bitswarm.service.ISimpleService;
+import LuckyManExtensions.utilities.Pair;
+import LuckyManExtensions.utilities.ScopedDatabaseConnection;
 import com.smartfoxserver.bitswarm.sessions.ISession;
 import com.smartfoxserver.v2.core.ISFSEvent;
 import com.smartfoxserver.v2.core.SFSEventParam;
 import com.smartfoxserver.v2.db.IDBManager;
-import com.smartfoxserver.v2.entities.data.ISFSArray;
 import com.smartfoxserver.v2.exceptions.SFSErrorCode;
 import com.smartfoxserver.v2.exceptions.SFSErrorData;
 import com.smartfoxserver.v2.exceptions.SFSException;
 import com.smartfoxserver.v2.exceptions.SFSLoginException;
 import com.smartfoxserver.v2.extensions.BaseServerEventHandler;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -25,14 +22,10 @@ public class LoginHandler extends BaseServerEventHandler {
             String username = getUsername(isfsEvent);
             String cryptedPassword = getCryptedPassword(isfsEvent);
             ISession session = getSession(isfsEvent);
-            Connection connection = getParentExtension().getParentZone().getDBManager().getConnection();
-            ResultSet resultSet = getUserFromDatabase(connection, username);
-            checkResult(resultSet);
-            String password = getUserPassword(resultSet);
-            checkInputPassword(session, cryptedPassword,password);
-            int id = resultSet.getInt("id");
-            session.setProperty("dbID", id);
-            connection.close();
+            IDBManager idbManager = getParentExtension().getParentZone().getDBManager();
+            Pair<Integer,String> userInfo = getUserInfoFromDatabase(idbManager,username);
+            checkInputPassword(session, cryptedPassword,userInfo.value);
+            session.setProperty("dbID", userInfo.key);
         }
         catch (Exception e) {
             trace(e.getMessage());
@@ -49,12 +42,18 @@ public class LoginHandler extends BaseServerEventHandler {
     private ISession getSession(ISFSEvent isfsEvent) {
         return (ISession) isfsEvent.getParameter(SFSEventParam.SESSION);
     }
-    private ResultSet getUserFromDatabase(Connection connection,String username) throws SQLException
+    private Pair<Integer,String> getUserInfoFromDatabase(IDBManager dbManager, String username) throws SQLException, SFSException
     {
-        PreparedStatement statement =
-                connection.prepareStatement("Select id, password from users where username=?");
-        statement.setString(1, username);
-        return statement.executeQuery();
+        try(ScopedDatabaseConnection connection
+                    = new ScopedDatabaseConnection(dbManager,"Select id,password from users where username=?")) {
+            connection.setString(1, username);
+            ResultSet result = connection.executeQuery();
+            checkResult(result);
+            String password = result.getString("password");
+            int id = result.getInt("id");
+            return new Pair<Integer,String>(id,password);
+        }
+
     }
     private void checkResult(ResultSet resultSet) throws SQLException,SFSLoginException {
         if (!resultSet.next())
@@ -63,9 +62,7 @@ public class LoginHandler extends BaseServerEventHandler {
             throw new SFSLoginException("Bad user name: ", errData);
         }
     }
-    private String getUserPassword(ResultSet resultSet) throws SQLException {
-        return (String)resultSet.getString("password");
-    }
+
     private void checkInputPassword(ISession session, String cryptedPassword, String password) throws SFSLoginException {
         if(!getApi().checkSecurePassword(session, password,cryptedPassword)){
             SFSErrorData errData = new SFSErrorData(SFSErrorCode.LOGIN_BAD_PASSWORD);

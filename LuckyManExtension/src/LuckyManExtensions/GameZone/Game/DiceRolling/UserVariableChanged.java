@@ -1,5 +1,6 @@
-package LuckyManExtensions.GameZone.DiceRolling;
+package LuckyManExtensions.GameZone.Game.DiceRolling;
 
+import LuckyManExtensions.utilities.ScopedDatabaseConnection;
 import com.smartfoxserver.v2.core.ISFSEvent;
 import com.smartfoxserver.v2.core.SFSEventParam;
 import com.smartfoxserver.v2.db.IDBManager;
@@ -28,11 +29,14 @@ public class UserVariableChanged extends BaseServerEventHandler {
     }
     private void updateDatabase(User user) throws SQLException
     {
-        Connection connection = getParentExtension().getParentZone().getDBManager().getConnection();
-        PreparedStatement statement = connection.prepareStatement("UPDATE users SET xp = xp + ? WHERE username = ?");
-        statement.setInt(1,50);
-        statement.setString(2,user.getName());
-        statement.executeUpdate();
-        connection.close();
+        IDBManager dbManager = getParentExtension().getParentZone().getDBManager();
+        try(ScopedDatabaseConnection connection =
+                    new ScopedDatabaseConnection(dbManager,"UPDATE users SET xp = xp + ? WHERE username = ?"))
+        {
+            connection.setInt(1,50);
+            connection.setString(2,user.getName());
+            connection.executeUpdate();
+        }
+
     }
 }
