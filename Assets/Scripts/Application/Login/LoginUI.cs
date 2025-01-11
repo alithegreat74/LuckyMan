@@ -1,4 +1,5 @@
 using Model;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ namespace Application
         [SerializeField] private TMP_InputField _usernameInput;
         [SerializeField] private TMP_InputField _paswordInput;
         [SerializeField] private Button _loginButton;
+        [SerializeField] private PopUp _popUp;
 
         private void Awake()
         {
@@ -19,7 +21,13 @@ namespace Application
         private async void LoginButtonClicked()
         {
             UserInfo loginInfo = new UserInfo() { Username = _usernameInput.text, Password = _paswordInput.text };
-            await GetComponent<LoginManager>().LoginSequence(loginInfo);
+            Tuple<bool,string> result = await GetComponent<LoginManager>().LoginSequence(loginInfo);
+            if (!result.Item1)
+            {
+                _popUp.ShowPopUp("Unable to complete the login sequence");
+                return;
+            }
+            SceneLoader.LoadScene("Main Menu");
         }
     }
 

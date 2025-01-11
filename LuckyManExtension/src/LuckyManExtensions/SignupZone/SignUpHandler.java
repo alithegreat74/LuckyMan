@@ -23,12 +23,12 @@ public class SignUpHandler extends BaseClientRequestHandler {
         catch(SQLException e){
             trace("Database Error" + e.getMessage());
             response.putBool("success", false);
-            response.putUtfString("error", e.getMessage());
+            response.putUtfString("errorMessage", e.getMessage());
         }
         catch(Exception e){
             trace(e.getMessage());
             response.putBool("success", false);
-            response.putUtfString("error", e.getMessage());
+            response.putUtfString("errorMessage", e.getMessage());
         }
         send("signUp",response,user);
 

@@ -1,4 +1,5 @@
 using Model;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,18 +8,11 @@ namespace Application
 {
     public class SignUpUI : MonoBehaviour
     {
-        [SerializeField]
-        private TMP_InputField _usernameInput;
-
-        [SerializeField]
-        private TMP_InputField _passwordInput;
-
-        [SerializeField]
-        private TMP_InputField _confirmPasswordInput;
-
-        [SerializeField]
-        private Button _signupButton;
-
+        [SerializeField] private TMP_InputField _usernameInput;
+        [SerializeField] private TMP_InputField _passwordInput;
+        [SerializeField] private TMP_InputField _confirmPasswordInput;
+        [SerializeField] private Button _signupButton;
+        [SerializeField] private PopUp _popUp;
         private void Awake()
         {
             _signupButton.onClick.AddListener(SignUpButtonClicked);
@@ -36,7 +30,13 @@ namespace Application
                 Password = _passwordInput.text,
             };
 
-            await GetComponent<SignUpManager>().SendRequest(info);
+            Tuple<bool,string> result = await GetComponent<SignUpManager>().SendRequest(info);
+            if(!result.Item1)
+            {
+                _popUp.ShowPopUp(result.Item2);
+                return;
+            }
+            SceneLoader.LoadScene("Login");
         }
     }
 }

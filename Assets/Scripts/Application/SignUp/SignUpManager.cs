@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Model;
 using Network;
@@ -10,16 +11,15 @@ namespace Application
 {
     public class SignUpManager : MonoBehaviour
     {
-        public async Task SendRequest(UserInfo info)
+        public async Task<Tuple<bool,string>> SendRequest(UserInfo info)
         {
             NetworkResult result = await SmartFoxNetworkAPI.SendRequest(
                     new ExtensionRequest("signUp", info.ToSFSO()), SFSEvent.EXTENSION_RESPONSE);
             if (result.Success())
             {
-                SceneLoader.LoadScene("Login");
-                return;
+                return new Tuple<bool, string>(true,"");
             }
-            Debug.Log(result.ErrorMessage());
+            return new Tuple<bool, string>(false,result.ErrorMessage());
         }
     }
 }
