@@ -16,9 +16,8 @@ namespace Application
             NetworkResult result = await SmartFoxNetworkAPI.SendRequest(
                     new ExtensionRequest("signUp", info.ToSFSO()), SFSEvent.EXTENSION_RESPONSE);
             if (result.Success())
-            {
                 return new Tuple<bool, string>(true,"");
-            }
+
             return new Tuple<bool, string>(false,result.ErrorMessage());
         }
     }

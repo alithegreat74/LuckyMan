@@ -19,11 +19,6 @@ namespace Application
             private async void Start()
             {
                 _leaderboardUI = GetComponent<LeaderboardUI>();
-                await SendLeaderboardRequest();
-            }
-
-            public async Task SendLeaderboardRequest()
-            {
                 try
                 {
                     NetworkResult result = await SmartFoxNetworkAPI.SendRequest(
