@@ -6,6 +6,7 @@ using Sfs2X.Core;
 using Sfs2X.Entities;
 using Sfs2X.Requests;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Application
 {
@@ -44,7 +45,7 @@ namespace Application
             {
                 Room room = (Room)e.Params["room"];
                 if (room.IsGame)
-                    SceneLoader.LoadScene("Game");
+                    SceneManager.LoadScene("Game");
                 else
                     Debug.Log("Waiting for other people to join");
             }

@@ -12,7 +12,12 @@ namespace Network
         private static SmartFoxNetworkManager _networkManager;
         private void Awake()
         {
-            _networkManager = GetComponent<SmartFoxNetworkManager>();
+            if(_networkManager == null)
+                _networkManager = GetComponent<SmartFoxNetworkManager>();
+            else
+                Destroy(gameObject);
+
+            DontDestroyOnLoad(gameObject);
         }
         public static async Task<NetworkResult> SendRequest(IRequest request, string sfsEvent)
         {

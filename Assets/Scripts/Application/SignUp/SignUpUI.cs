@@ -2,6 +2,7 @@ using Model;
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Application
@@ -36,7 +37,7 @@ namespace Application
                 _popUp.ShowPopUp(result.Item2);
                 return;
             }
-            SceneLoader.LoadScene("Login");
+            SceneManager.LoadScene("Login");
         }
     }
 }

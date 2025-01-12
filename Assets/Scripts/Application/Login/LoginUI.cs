@@ -2,6 +2,7 @@ using Model;
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Application
@@ -27,7 +28,7 @@ namespace Application
                 _popUp.ShowPopUp("Unable to complete the login sequence");
                 return;
             }
-            SceneLoader.LoadScene("Main Menu");
+            SceneManager.LoadScene("Main Menu");
         }
     }
 

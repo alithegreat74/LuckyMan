@@ -34,6 +34,7 @@ namespace Network
         }
         private async void Start()
         {
+            Debug.Log("Connecting to server");
             SubscribeToEvent(new NetworkEventSubscription(SFSEvent.CONNECTION_LOST, ConnectionLost));
             //Initialize the smartfox tasks class by giving it a reference of the smartfox instance
             _smartFoxTasks = new SmartFoxTasks(_smartFox);

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Application
@@ -19,7 +20,7 @@ namespace Application
 
             private void LoadScene()
             {
-                SceneLoader.LoadScene(_sceneName);
+                SceneManager.LoadScene(_sceneName);
             }
         }
     }

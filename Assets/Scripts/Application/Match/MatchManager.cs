@@ -8,6 +8,7 @@ using Sfs2X.Entities.Data;
 using Sfs2X.Requests;
 using UnityEngine;
 using UnityEngine.Device;
+using UnityEngine.SceneManagement;
 
 namespace Application
 {
@@ -56,7 +57,7 @@ namespace Application
                 try
                 {
                     await SmartFoxNetworkAPI.SendRequest(new LeaveRoomRequest(), SFSEvent.USER_EXIT_ROOM);
-                    SceneLoader.LoadScene("Main Menu");
+                    SceneManager.LoadScene("Main Menu");
                 }
                 catch (Exception exception)
                 {
@@ -94,7 +95,7 @@ namespace Application
                 try
                 {
                     NetworkResult result = await SmartFoxNetworkAPI.SendRequest(new LeaveRoomRequest(), SFSEvent.USER_EXIT_ROOM);
-                    SceneLoader.LoadScene("Main Menu");
+                    SceneManager.LoadScene("Main Menu");
                 }
                 catch (Exception e)
                 {
