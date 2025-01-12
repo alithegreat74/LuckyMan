@@ -12,7 +12,7 @@ public class DiceRollHandler extends BaseClientRequestHandler {
     public void handleClientRequest(User user, ISFSObject isfsObject) {
         Random rand = new Random();
         //Generate a random number
-        int randomInt = rand.nextInt(5);
+        int randomInt = rand.nextInt(6);
         ISFSObject response = new SFSObject();
         try {
             getApi().setUserVariables(user,UpdateUserVariables(user,randomInt));
